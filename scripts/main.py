@@ -359,4 +359,5 @@ if __name__ == "__main__":
         for datafile in datafile_list:
             cs.upload_file(f"data\\{datafile}", f"data/{datafile}")
         print("파일 업로드 완료")
+
     print("종료 - Ip: " + misc.get_ip())
