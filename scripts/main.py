@@ -6,7 +6,6 @@ import discord
 import platform
 import get_answer as ga
 import update_data as ud
-import cloud_storage as cs
 import get_rank_info as gri
 import register_player as rp
 import get_server_info as gsi
@@ -26,18 +25,6 @@ print("-" * 20 + "start!")
 # nordvpn()
 
 discord_client = discord.Client(intents=discord.Intents.all())
-
-datafile_list = [
-    "playerdata.csv",
-    "rankdata.csv",
-    "registered_player_list.json",
-    "serverdata.csv",
-]
-
-if os_name == "Linux":
-    for datafile in datafile_list:
-        cs.download_file(f"data/{datafile}", f"data\\{datafile}")
-    ud.update_data()
 
 
 @discord_client.event
@@ -353,11 +340,5 @@ if __name__ == "__main__":
 
     print(f"디스코드 로그아웃 성공")
     # disconnect_nordvpn()
-
-    if os_name == "Linux":
-        print("파일 업로드 시작")
-        for datafile in datafile_list:
-            cs.upload_file(f"data\\{datafile}", f"data/{datafile}")
-        print("파일 업로드 완료")
 
     print("종료 - Ip: " + misc.get_ip())
