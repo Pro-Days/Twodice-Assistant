@@ -42,3 +42,26 @@ def get_uuid(name):
     response = requests.get(url)
     data = response.json()
     return data["id"]
+
+
+def convert_job(job):
+    job_dict = {
+        "0": "검호",
+        "1": "매화",
+        "2": "살수",
+        "3": "도제",
+        "4": "술사",
+        "5": "도사",
+        "6": "빙궁",
+        "7": "귀궁",
+        "검호": "0",
+        "매화": "1",
+        "살수": "2",
+        "도제": "3",
+        "술사": "4",
+        "도사": "5",
+        "빙궁": "6",
+        "귀궁": "7",
+    }
+
+    return job_dict[job]

@@ -40,17 +40,6 @@ def get_rank_info(page):
         for row in reader:
             csv_data.append(row)
 
-    job_dict = {
-        "0": "검호",
-        "1": "매화",
-        "2": "살수",
-        "3": "도제",
-        "4": "술사",
-        "5": "도사",
-        "6": "빙궁",
-        "7": "귀궁",
-    }
-
     # csv_data = csv_data[-1]
 
     data = {
@@ -67,7 +56,7 @@ def get_rank_info(page):
         name = misc.get_name_from_uuid(uuid)
         data["Name"].append(name)
         data["Level"].append(level)
-        data["Job"].append(job_dict[job])
+        data["Job"].append(misc.convert_job(job))
 
         prev_rank = get_player_rank(name, 1)
         if prev_rank is None:
