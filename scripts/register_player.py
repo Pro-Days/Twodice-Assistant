@@ -31,9 +31,8 @@ def register_player(name, slot):
     with open(convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
-    name = misc.get_real_name(name)
     uuid = misc.get_uuid(name)
-    data[name] = [slot, uuid]
+    data[uuid] = slot
 
     with open(convert_path("data\\registered_player_list.json"), "w") as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
@@ -52,6 +51,10 @@ def registered_player_list():
         data = json.load(file)
 
     keys_list = list(data.keys())
+
+    for i in range(len(keys_list)):
+        keys_list[i] = misc.get_name_from_uuid(keys_list[i])
+
     return keys_list
 
 
@@ -59,8 +62,9 @@ def get_main_slot(name):
     with open(convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
-    name = misc.get_real_name(name)
-    return data[name][0]
+    uuid = misc.get_uuid(name)
+
+    return data[uuid]
 
 
 if __name__ == "__main__":

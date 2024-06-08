@@ -63,7 +63,8 @@ def get_rank_info(page):
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
     for i in range(page * 10 - 9, page * 10 + 1):
-        name, level, job = csv_data[-1][i].split("-")
+        uuid, level, job = csv_data[-1][i].split("-")
+        name = misc.get_name_from_uuid(uuid)
         data["Name"].append(name)
         data["Level"].append(level)
         data["Job"].append(job_dict[job])
@@ -345,6 +346,7 @@ def get_rank_info(page):
 
 def get_player_rank(name, day_before):
     csv_data = []
+    uuid = misc.get_uuid(name)
 
     f_path = misc.convert_path("data\\rankdata.csv")
     with open(f_path, "r") as file:
@@ -355,7 +357,7 @@ def get_player_rank(name, day_before):
     if len(csv_data) > day_before:
         prev_data = csv_data[-day_before - 1]
         for i in range(1, len(prev_data)):
-            if prev_data[i].split("-")[0] == name:
+            if prev_data[i].split("-")[0] == uuid:
                 return i
 
     return None

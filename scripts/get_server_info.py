@@ -28,13 +28,13 @@ def hanwol(ans):
     ans_json = json.loads(ans)
 
     if ans_json["fn_id"] == 1:
-        vote, pl, image = get_server_info()
+        (vote, pl), image = get_server_info()
         print(f"vote: {vote}, pl: {pl}, image: {image}")
         os.remove(image)
         return vote, pl, image
 
 
-def get_server_info():
+def get_server_info(image=True):
     try:
         url = "https://mine.page/server/mineplanet.kr"
         driver.get(url)
@@ -69,23 +69,30 @@ def get_server_info():
         pl = int(pl)
 
         info = (vote, pl)
+
     except:
-        info = None
+        info = (None, None)
 
-    image_url = "https://minelist.kr/servers/8117/banner/modern.png"
-    try:
-        response = requests.get(image_url)
-        image = misc.convert_path("assets\\images\\minelist_info.png")
-        os.makedirs(
-            os.path.dirname(image),
-            exist_ok=True,
-        )
-        with open(image, "wb") as f:
-            f.write(response.content)
-    except requests.exceptions.RequestException as e:
-        image = None
+    if image:
+        image_url = "https://minelist.kr/servers/8117/banner/modern.png"
 
-    return info, image
+        try:
+            response = requests.get(image_url)
+            image_path = misc.convert_path("assets\\images\\minelist_info.png")
+            os.makedirs(
+                os.path.dirname(image_path),
+                exist_ok=True,
+            )
+            with open(image_path, "wb") as f:
+                f.write(response.content)
+
+        except requests.exceptions.RequestException as e:
+            image_path = None
+
+        return info, image_path
+
+    else:
+        return info, None
 
 
 if __name__ == "__main__":

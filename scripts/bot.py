@@ -3,7 +3,7 @@ import time
 import misc
 import discord
 
-LOG_CHANNEL_ID = 1244676938002468939
+LOG_CHANNEL_ID = 1248628675134488637
 now = time.localtime()
 
 

@@ -11,6 +11,14 @@ def get_real_name(name):
     return name
 
 
+def get_name_from_uuid(uuid):
+    url = f"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
+    response = requests.get(url)
+    data = response.json()
+    name = data.get("name")
+    return name
+
+
 def convert_path(path):
     """
     운영 체제에 따라 경로를 변환함.

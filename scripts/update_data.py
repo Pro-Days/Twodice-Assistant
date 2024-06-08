@@ -3,7 +3,7 @@ import time
 import threading
 
 
-def update_30m():
+def update_5m():
     print("30m_update")
 
 
@@ -22,12 +22,10 @@ def timer():
 
 
 def update_data():
-    schedule.every().hour.at(":00").do(update_30m)
-    schedule.every().hour.at(":30").do(update_30m)
+    schedule.every().hour.at(":05").do(update_5m)
+    schedule.every().hour.at(":30").do(update_5m)
 
     schedule.every().day.at("00:00").do(update_1d)
-
-    # schedule.every(10).seconds.do(update_10s)
 
     threading.Thread(target=timer, daemon=True).start()
 

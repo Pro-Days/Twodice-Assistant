@@ -162,7 +162,7 @@ def get_character_info(name, slot=1, period=7, default=True):
 def get_character_data(name, slot):
     csv_data = []
     data = {"date": [], "level": []}
-    name = misc.get_real_name(name)
+    uuid = misc.get_uuid(name)
 
     f_path = misc.convert_path("data\\playerdata.csv")
 
@@ -171,9 +171,9 @@ def get_character_data(name, slot):
         for row in reader:
             csv_data.append(row)
 
-    if f"{name}-{slot}" in csv_data[0]:
+    if f"{uuid}-{slot}" in csv_data[0]:
         for i in range(1, len(csv_data[0])):
-            if csv_data[0][i] == f"{name}-{slot}":
+            if csv_data[0][i] == f"{uuid}-{slot}":
                 for j in range(1, len(csv_data)):
                     if csv_data[j][i] != "-1":
                         data["date"].append(csv_data[j][0])
