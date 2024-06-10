@@ -31,6 +31,10 @@ def hanwol(ans):
         print(image)
 
 
+def get_current_rank_data(name):
+    pass
+
+
 def get_rank_info(page):
     csv_data = []
 

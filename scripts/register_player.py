@@ -3,18 +3,6 @@ import json
 import misc
 
 
-def convert_path(path):
-    """
-    운영 체제에 따라 경로를 변환합니다.
-    윈도우에서는 백슬래시를 사용하고, 유닉스에서는 슬래시를 사용합니다.
-    """
-    if os.name == "nt":  # 윈도우인 경우
-        system_path = path.replace("/", "\\")
-    else:  # 유닉스 기반 시스템인 경우
-        system_path = path.replace("\\", "/")
-    return os.path.normpath(system_path)
-
-
 def hanwol(ans):
     ans_json = json.loads(ans)
     if ans_json["fn_id"] == 4:
@@ -28,13 +16,13 @@ def hanwol(ans):
 
 
 def register_player(name, slot):
-    with open(convert_path("data\\registered_player_list.json"), "r") as file:
+    with open(misc.convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
     uuid = misc.get_uuid(name)
     data[uuid] = slot
 
-    with open(convert_path("data\\registered_player_list.json"), "w") as file:
+    with open(misc.convert_path("data\\registered_player_list.json"), "w") as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
 
 
@@ -47,7 +35,7 @@ def is_registered(name):
 
 
 def registered_player_list():
-    with open(convert_path("data\\registered_player_list.json"), "r") as file:
+    with open(misc.convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
     keys_list = list(data.keys())
@@ -59,7 +47,7 @@ def registered_player_list():
 
 
 def get_main_slot(name):
-    with open(convert_path("data\\registered_player_list.json"), "r") as file:
+    with open(misc.convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
     uuid = misc.get_uuid(name)

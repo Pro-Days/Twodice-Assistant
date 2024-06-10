@@ -36,6 +36,24 @@ def hanwol(ans):
         get_character_info(name, slot, period, default)
 
 
+def get_current_character_data(name):
+    with open(misc.convert_path("data\\player.txt"), "r", encoding="UTF-8") as file:
+        lines = file.readlines()
+
+    data = {}
+
+    for line in lines:
+        slot, job, level = (
+            line.split(",")[0],
+            line.split(",")[1],
+            line.split(",")[2].replace("\n", ""),
+        )
+
+        data[slot] = {"job": job, "level": level}
+
+    return data
+
+
 def get_character_info(name, slot=1, period=7, default=True):
     all_character_avg = get_all_character_avg()
     data = get_character_data(name, slot)
@@ -177,7 +195,10 @@ def get_character_data(name, slot):
                 for j in range(1, len(csv_data)):
                     if csv_data[j][i] != "-1":
                         data["date"].append(csv_data[j][0])
-                        data["level"].append(int(csv_data[j][i]))
+                        if j != len(csv_data) - 1:
+                            data["level"].append(int(csv_data[j][i]))
+        info = get_current_character_data(name)
+        data["level"].append(int(info[str(slot)]["level"]))
     else:
         data = None
 

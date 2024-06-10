@@ -1,22 +1,23 @@
 import os
+import json
 import requests
 import platform
 
 
 def get_real_name(name):
-    url = f"https://api.mojang.com/users/profiles/minecraft/{name}"
-    response = requests.get(url)
-    data = response.json()
-    name = data.get("name")
-    return name
+    with open(convert_path("data\\uuids.json"), "r") as file:
+        data = json.load(file)
+
+    for key in data:
+        if data[key].lower() == name.lower():
+            return data[key]
 
 
 def get_name_from_uuid(uuid):
-    url = f"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
-    response = requests.get(url)
-    data = response.json()
-    name = data.get("name")
-    return name
+    with open(convert_path("data\\uuids.json"), "r") as file:
+        data = json.load(file)
+
+    return data[uuid]
 
 
 def convert_path(path):
@@ -38,10 +39,12 @@ def get_ip():
 
 
 def get_uuid(name):
-    url = f"https://api.mojang.com/users/profiles/minecraft/{name}"
-    response = requests.get(url)
-    data = response.json()
-    return data["id"]
+    with open(convert_path("data\\uuids.json"), "r") as file:
+        data = json.load(file)
+
+    for key in data:
+        if data[key].lower() == name.lower():
+            return key
 
 
 def convert_job(job):
