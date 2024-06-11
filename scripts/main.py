@@ -4,6 +4,7 @@ import misc
 import random
 import discord
 import platform
+import traceback
 import get_answer as ga
 import update_data as ud
 import get_rank_info as gri
@@ -47,7 +48,7 @@ async def on_message(message):
                 discord_client,
                 "죄송하지만 오류가 발생했어요\n다시 한번 말씀해주시겠어요?",
                 message,
-                error=e,
+                error=traceback.format_exc(),
                 log_type=5,
                 ans_json=ans_json,
             )
