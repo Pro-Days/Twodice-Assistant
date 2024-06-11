@@ -49,6 +49,7 @@ async def on_message(message):
                 message,
                 error=e,
                 log_type=5,
+                ans_json=ans_json,
             )
 
 
@@ -335,7 +336,7 @@ async def hanwol(message, ans_json):
 
 if __name__ == "__main__":
     questions = []
-
+    ud.update_data()
     discord_client.run(os.getenv("DISCORD_TOKEN"))
 
     print(f"디스코드 로그아웃 성공")

@@ -31,21 +31,33 @@ def hanwol(ans):
         print(image)
 
 
-def get_current_rank_data(name):
-    pass
+def get_current_rank_data():
+    """
+    data = {
+        "1": {"name": "플레이어1", "job": "검호", "level": 100},
+        "2": {"name": "플레이어2", "job": "검호", "level": 100},
+        "3": {"name": "플레이어3", "job": "검호", "level": 100},
+        ...
+        "100": {"name": "플레이어100", "job": "검호", "level": 100},
+    }
+    """
+    with open(misc.convert_path("data\\rank.csv"), "r", encoding="UTF8") as file:
+        lines = file.readlines()
+
+    data = {}
+
+    for line in lines:
+        rank, name, job, level = line.split(",")
+        data[rank] = {
+            "name": name,
+            "job": job,
+            "level": level[:-1],
+        }
+
+    return data
 
 
 def get_rank_info(page):
-    csv_data = []
-
-    f_path = misc.convert_path("data\\rankdata.csv")
-    with open(f_path, "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            csv_data.append(row)
-
-    # csv_data = csv_data[-1]
-
     data = {
         "Rank": range(page * 10 - 9, page * 10 + 1),
         "Name": [],
@@ -54,15 +66,15 @@ def get_rank_info(page):
         "Change": [],
     }
 
+    current_data = get_current_rank_data()
+
     # 실시간 랭킹 데이터를 가져와서 data에 추가
     for i in range(page * 10 - 9, page * 10 + 1):
-        uuid, level, job = csv_data[-1][i].split("-")
-        name = misc.get_name_from_uuid(uuid)
-        data["Name"].append(name)
-        data["Level"].append(level)
-        data["Job"].append(misc.convert_job(job))
+        data["Name"].append(current_data[str(i)]["name"])
+        data["Level"].append(current_data[str(i)]["level"])
+        data["Job"].append(current_data[str(i)]["job"])
 
-        prev_rank = get_player_rank(name, 1)
+        prev_rank = get_prev_player_rank(current_data[str(i)]["name"], 1)
         if prev_rank is None:
             data["Change"].append(None)
         else:
@@ -337,7 +349,7 @@ def get_rank_info(page):
     return misc.convert_path("assets\\images\\rank_info.png")
 
 
-def get_player_rank(name, day_before):
+def get_prev_player_rank(name, day_before):
     csv_data = []
     uuid = misc.get_uuid(name)
 
@@ -357,4 +369,4 @@ def get_player_rank(name, day_before):
 
 
 if __name__ == "__main__":
-    hanwol('{ "fn_id": 2, "q": false, "text": null, "var": {"page":3} }')
+    hanwol('{ "fn_id": 2, "q": false, "text": null, "var": {"page":1} }')

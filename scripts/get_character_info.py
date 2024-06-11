@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.font_manager as fm
 import get_rank_info as gri
+import numpy as np
+from scipy.interpolate import make_interp_spline
 
 
 plt.style.use("seaborn-v0_8-pastel")
@@ -37,6 +39,13 @@ def hanwol(ans):
 
 
 def get_current_character_data(name):
+    """
+    data = {
+        "1": {"job": "검호", "level": "100"},
+        "2": {"job": "검호", "level": "100"},
+        "3": {"job": "검호", "level": "100"},
+    }
+    """
     with open(misc.convert_path("data\\player.txt"), "r", encoding="UTF-8") as file:
         lines = file.readlines()
 
@@ -63,38 +72,77 @@ def get_character_info(name, slot=1, period=7, default=True):
             return f"{name}님의 캐릭터 정보가 없어요. 다시 확인해주세요.", None
         return f"{name}님의 {slot}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
 
+    period = min(len(data["date"]), period)
+    for i in data:
+        data[i] = data[i][-period:]
+    for i in all_character_avg:
+        all_character_avg[i] = all_character_avg[i][-period:]
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"])
-    period = min(len(df["date"]), period)
-    df = df[-period:]
 
     df_avg = pd.DataFrame(all_character_avg)
     df_avg["date"] = pd.to_datetime(df_avg["date"])
-    df_avg = df_avg[-period:]
 
     plt.figure(figsize=(10, 4))
 
-    plt.plot("date", "level", data=df, marker="o")
+    x = np.arange(len(df["date"]))
+    x_new = np.linspace(x.min(), x.max(), len(df["date"]) * 3 - 2)
+    spl = make_interp_spline(x, df["level"], k=2)  # k=3 은 cubic spline 을 의미
+    y_smooth = spl(x_new)
+
+    plt.plot(df["date"], df["level"], "o")
+    plt.plot(df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
+    # plt.plot("date", "level", data=df, marker="o")
     y_min = df["level"].min()
     y_max = df["level"].max()
     y_range = y_max - y_min
 
-    plt.ylim(y_min - 0.1 * y_range, y_max + 0.3 * y_range)
+    if y_min == y_max:
+        plt.ylim(y_max - 1, y_max + 1)
+    else:
+        plt.ylim(y_min - 0.1 * y_range, y_max + 0.3 * y_range)
 
-    display_avg = not (df_avg["level"].max() < y_min - 0.1 * y_range) or (
-        df_avg["level"].min() > y_max + 0.3 * y_range
+    display_avg = not (
+        (df_avg["level"].max() < y_min - 0.1 * y_range)
+        or (df_avg["level"].min() > y_max + 0.3 * y_range)
     )
     if display_avg:
         plt.plot("date", "level", data=df_avg, marker="o")
     # plt.title(f"{name}의 {slot}번 캐릭터의 레벨 변화 그래프")
 
-    plt.fill_between(df["date"], df["level"], color="skyblue", alpha=0.1)
+    for i in range(len(df) - 1):
+        match df["job"][i]:
+            case "0":
+                color = "#A0DEFF"
+            case "1":
+                color = "#FED0E9"
+            case "2":
+                color = "#ffa0a0"
+            case "3":
+                color = "#DFCCFB"
+            case "4":
+                color = "#FFCF96"
+            case "5":
+                color = "#97E7E1"
+            case "6":
+                color = "#CAF4FF"
+            case "7":
+                color = "#DCBFFF"
+        plt.fill_between(
+            df["date"][0] + pd.to_timedelta(x_new[i * 3 : i * 3 + 4], unit="D"),
+            y_smooth[i * 3 : i * 3 + 4],
+            color=color,
+            alpha=1,
+        )
+        # df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth
+        # 0~4, 3~7, 6~10, 9~13, 12~16
 
     ax = plt.gca()
 
     # Set date format on x-axis
     date_format = mdates.DateFormatter("%m월 %d일")
     ax.xaxis.set_major_formatter(date_format)
+    ax.xaxis.set_major_locator(mdates.DayLocator())
 
     for i, row in df.iterrows():
         if i % ((period // 20) + 1) == (period // 20):
@@ -145,7 +193,7 @@ def get_character_info(name, slot=1, period=7, default=True):
     current_level = df["level"].iat[-1]
     level_change = df["level"].iat[-1] - df["level"].iat[0]
 
-    rank = gri.get_player_rank(name, 0)
+    rank = gri.get_prev_player_rank(name, 0)
 
     if default:
         if rank is not None:
@@ -179,12 +227,10 @@ def get_character_info(name, slot=1, period=7, default=True):
 
 def get_character_data(name, slot):
     csv_data = []
-    data = {"date": [], "level": []}
+    data = {"date": [], "level": [], "job": []}
     uuid = misc.get_uuid(name)
 
-    f_path = misc.convert_path("data\\playerdata.csv")
-
-    with open(f_path, "r") as file:
+    with open(misc.convert_path("data\\playerdata.csv"), "r") as file:
         reader = csv.reader(file)
         for row in reader:
             csv_data.append(row)
@@ -193,12 +239,15 @@ def get_character_data(name, slot):
         for i in range(1, len(csv_data[0])):
             if csv_data[0][i] == f"{uuid}-{slot}":
                 for j in range(1, len(csv_data)):
-                    if csv_data[j][i] != "-1":
+                    if csv_data[j][i][:2] != "-1":
                         data["date"].append(csv_data[j][0])
                         if j != len(csv_data) - 1:
-                            data["level"].append(int(csv_data[j][i]))
+                            level, job = csv_data[j][i].split("-")
+                            data["level"].append(int(level))
+                            data["job"].append(job)
         info = get_current_character_data(name)
         data["level"].append(int(info[str(slot)]["level"]))
+        data["job"].append(misc.convert_job(info[str(slot)]["job"]))
     else:
         data = None
 
@@ -209,9 +258,7 @@ def get_all_character_avg():
     csv_data = []
     data = {"date": [], "level": []}
 
-    f_path = misc.convert_path("data\\playerdata.csv")
-
-    with open(f_path, "r") as file:
+    with open(misc.convert_path("data\\playerdata.csv"), "r") as file:
         reader = csv.reader(file)
         for row in reader:
             csv_data.append(row)
@@ -219,7 +266,7 @@ def get_all_character_avg():
     count = len(csv_data[0]) - 1
     for i in range(1, len(csv_data)):
         data["date"].append(csv_data[i][0])
-        levels = [int(num) for num in csv_data[i][1:] if num != "-1"]
+        levels = [int(num.split("-")[0]) for num in csv_data[i][1:] if num[:2] != "-1"]
         data["level"].append(sum(levels) / count)
 
     return data
@@ -227,5 +274,5 @@ def get_all_character_avg():
 
 if __name__ == "__main__":
     hanwol(
-        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"prodays", "period":19, "slot":3} }'
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"prodays", "slot":1, "period":15} }'
     )

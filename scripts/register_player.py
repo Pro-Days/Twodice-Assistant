@@ -1,6 +1,8 @@
 import os
 import json
+import time
 import misc
+import requests
 
 
 def hanwol(ans):
@@ -15,14 +17,43 @@ def hanwol(ans):
         print("플레이어 등록이 완료되었습니다.")
 
 
-def register_player(name, slot):
+def register_player(name, slot=None):
     with open(misc.convert_path("data\\registered_player_list.json"), "r") as file:
         data = json.load(file)
 
-    uuid = misc.get_uuid(name)
+    while True:
+        response = requests.get(
+            f"https://api.mojang.com/users/profiles/minecraft/{name}"
+        )
+
+        if response.status_code == 200:
+            break
+        else:
+            time.sleep(1)
+
+    uuid = response.json()["id"]
+    name = response.json()["name"]
+
+    time.sleep(1)
+
+    if slot is None:
+        if uuid in data:
+            return
+
+        else:
+            slot = 1
+
     data[uuid] = slot
 
     with open(misc.convert_path("data\\registered_player_list.json"), "w") as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+
+    with open(misc.convert_path("data\\uuids.json"), "r") as file:
+        data = json.load(file)
+
+    data[uuid] = name
+
+    with open(misc.convert_path("data\\uuids.json"), "w") as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
 
 
@@ -56,7 +87,5 @@ def get_main_slot(name):
 
 
 if __name__ == "__main__":
-    hanwol(
-        '{ "fn_id": 4, "q": false, "text": null, "var": {"name":"Protect_Choco", "slot":1} }'
-    )
+    hanwol('{ "fn_id": 4, "q": false, "text": null, "var": {"name":"Protect_Choco"} }')
     # print(is_registered("prodays"))

@@ -72,6 +72,98 @@ JSON의 Key들은 반드시 큰따옴표로 감싸져 있어야해.
 "text"에는 해요체(-요)로 답변해줘.
 """
 
+qna = [
+    [
+        "사이트 주소 알려줘",
+        '{ "fn_id": -1, "q": false, "text": "한월 서버의 사이트 주소는 https://hanwol.skhidc.kr 이에요. \\n이 링크를 클릭해서 사이트로 이동할 수 있어요!", "var": {} }',
+    ],
+    [
+        "10일동안 ProDays 정보 알려줘",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"ProDays", "period":10} }',
+    ],
+    [
+        "5일간 ProDays 캐릭터 정보 보여줘",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"ProDays", "period":10} }',
+    ],
+    ["랭킹 알려줘", '{ "fn_id": 2, "q": false, "text": null, "var": {} }'],
+    [
+        "ProDays 등록해줘",
+        '{ "fn_id": 4, "q": false, "text": null, "var": {"name":"ProDays"} }',
+    ],
+    [
+        "Welcome_Pasta 정보 알려줘",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"Welcome_Pasta"} }',
+    ],
+    [
+        "추천하는 방법 알려줘",
+        '{ "fn_id": -1, "q": false, "text": "다음 두 링크에서 서버를 추천할 수 있어요!\\n\\n마인리스트: https://minelist.kr/servers/hanwol.skhidc.kr\\n마인페이지: https://mine.page/server/hanwol.skhidc.kr", "var": {} }',
+    ],
+    [
+        "ProDays 캐릭터 등록해줘. 본캐는 1번이야.",
+        '{ "fn_id": 4, "q": false, "text": null, "var": {"name":"ProDays", "slot":1} }',
+    ],
+    [
+        "서버 정보 알려줘",
+        '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
+    ],
+    [
+        "캐릭터 등록하는 방법 알려줘.",
+        '{ "fn_id": -1, "q": false, "text": "등록할 캐릭터 닉네임을 알려주시면 등록해드릴게요!\\n\\n\'!한월 <닉네임> 캐릭터 등록해줘.\'처럼 명령어를 입력하시면 캐릭터를 바로 등록할 수 있어요.\\n추가적으로 계정의 1번 슬롯 캐릭터가 메인 캐릭터(본캐)가 아니라면 메인 캐릭터의 슬롯 번호를 함께 알려주세요.", "var": {} }',
+    ],
+    [
+        "지금 서버 레벨랭킹 2페이지 알려줘",
+        '{ "fn_id": 2, "q": false, "text": null, "var": {"page":2} }',
+    ],
+    [
+        "지난 10일간 ProDays의 2번째 캐릭터 정보 알려줘",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"ProDays", "slot":2, "period": 10} }',
+    ],
+    [
+        "서버 랭킹 3페이지 알려줘",
+        '{ "fn_id": 2, "q": false, "text": null, "var": {"page":3} }',
+    ],
+    [
+        "kozi0518 정보",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"kozi0518"} }',
+    ],
+    [
+        "정보 straightq",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"straightq"} }',
+    ],
+    [
+        "플레이어 정보를 알고싶어",
+        '{ "fn_id": -1, "q": true, "text": "정보를 얻고싶으신 플레이어의 닉네임을 알려주세요!\\n 캐릭터 슬롯을 함께 말씀해주시면 그에 맞는 정보를 알려드릴게요!", "var": {} }',
+    ],
+    [
+        "pro_days의 본캐는 2번이야",
+        '{ "fn_id": 4, "q": false, "text": "", "var": {"name":"pro_days", "slot":2} }',
+    ],
+    [
+        "서버 정보 알려줘",
+        '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
+    ],
+    [
+        "캐릭터 등록해줘",
+        '{ "fn_id": 4, "q": true, "text": "등록하고 싶으신 캐릭터의 이름을 알려주세요!", "var": {} }',
+    ],
+    [
+        "지금 한월 접속자수 몇명이야?",
+        '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
+    ],
+    [
+        "캐릭터 정보 알려줘",
+        '{ "fn_id": 3, "q": true, "text": "원하시는 캐릭터의 닉네임을 알려주세요!\\n 캐릭터 슬롯을 함께 말씀해주시면 그에 맞는 정보를 알려드릴게요.", "var": {} }',
+    ],
+    [
+        "lemong_0 2슬롯 정보 알려줘",
+        '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"lemong_0", "slot":2} }',
+    ],
+    [
+        "초전도체에 대해 알려줘",
+        '{ "fn_id": -1, "q": false, "text": "죄송하지만 초전도체에 대한 정보는 제가 알려드릴 수 없어요.\\n한월 서버와 관련된 정보는 알려드릴 수 있으니 언제든지 물어봐주세요!", "var": {} }',
+    ],
+]
+
 
 def search(msg):
     messages = [
@@ -84,269 +176,13 @@ def search(msg):
                 }
             ],
         },
-        {"role": "user", "content": [{"type": "text", "text": "사이트 주소 알려줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": -1, "q": false, "text": "한월 서버의 사이트 주소는 https://hanwol.skhidc.kr 이에요. \\n이 링크를 클릭해서 사이트로 이동할 수 있어요!", "var": {} }',
-                }
-            ],
-        },
-        {"role": "user", "content": [{"type": "text", "text": "랭킹 알려줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 2, "q": false, "text": null, "var": {} }',
-                }
-            ],
-        },
-        {"role": "user", "content": [{"type": "text", "text": "ProDays 등록해줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 4, "q": false, "text": null, "var": {"name":"ProDays"} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "Welcome_Pasta 정보 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"Welcome_Pasta"} }',
-                }
-            ],
-        },
-        {"role": "user", "content": [{"type": "text", "text": "추천하는 방법 알려줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": -1, "q": false, "text": "다음 두 링크에서 서버를 추천할 수 있어요!\\n\\n마인리스트: https://minelist.kr/servers/hanwol.skhidc.kr\\n마인페이지: https://mine.page/server/hanwol.skhidc.kr", "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "ProDays 캐릭터 등록해줘. 본캐는 1번이야."}
-            ],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 4, "q": false, "text": null, "var": {"name":"ProDays", "slot":1} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "서버 정보 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "캐릭터 등록하는 방법 알려줘."}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": -1, "q": false, "text": "등록할 캐릭터 닉네임을 알려주시면 등록해드릴게요!\\n\\n\'!한월 <닉네임> 캐릭터 등록해줘.\'처럼 명령어를 입력하시면 캐릭터를 바로 등록할 수 있어요.\\n추가적으로 계정의 1번 슬롯 캐릭터가 메인 캐릭터(본캐)가 아니라면 메인 캐릭터의 슬롯 번호를 함께 알려주세요.", "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "지금 서버 레벨랭킹 2페이지 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 2, "q": false, "text": null, "var": {"page":2} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": "지난 10일간 ProDays의 2번째 캐릭터 정보 알려줘",
-                }
-            ],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"ProDays", "slot":2, "period": 10} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "서버 랭킹 3페이지 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 2, "q": false, "text": null, "var": {"page":3} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "kozi0518 정보"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"kozi0518"} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "정보 straightq"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"straightq"} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "플레이어 정보를 알고싶어"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": -1, "q": true, "text": "정보를 얻고싶으신 플레이어의 닉네임을 알려주세요!\\n 캐릭터 슬롯을 함께 말씀해주시면 그에 맞는 정보를 알려드릴게요!", "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "pro_days의 본캐는 2번이야"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 4, "q": false, "text": "", "var": {"name":"pro_days", "slot":2} }',
-                }
-            ],
-        },
-        {"role": "user", "content": [{"type": "text", "text": "서버 정보 알려줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
-                }
-            ],
-        },
-        {"role": "user", "content": [{"type": "text", "text": "캐릭터 등록해줘"}]},
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 4, "q": true, "text": "등록하고 싶으신 캐릭터의 이름을 알려주세요!", "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "지금 한월 접속자수 몇명이야?"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "캐릭터 정보 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": true, "text": "원하시는 캐릭터의 닉네임을 알려주세요!\\n 캐릭터 슬롯을 함께 말씀해주시면 그에 맞는 정보를 알려드릴게요.", "var": {} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "lemong_0 2슬롯 정보 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": 3, "q": false, "text": null, "var": {"name":"lemong_0", "slot":2} }',
-                }
-            ],
-        },
-        {
-            "role": "user",
-            "content": [{"type": "text", "text": "초전도체에 대해 알려줘"}],
-        },
-        {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "text",
-                    "text": '{ "fn_id": -1, "q": false, "text": "죄송하지만 초전도체에 대한 정보는 제가 알려드릴 수 없어요.\\n한월 서버와 관련된 정보는 알려드릴 수 있으니 언제든지 물어봐주세요!", "var": {} }',
-                }
-            ],
-        },
     ]
+
+    for i in qna:
+        messages.append({"role": "user", "content": [{"type": "text", "text": i[0]}]})
+        messages.append(
+            {"role": "assistant", "content": [{"type": "text", "text": i[1]}]}
+        )
 
     messages.append({"role": "user", "content": [{"type": "text", "text": msg}]})
 
