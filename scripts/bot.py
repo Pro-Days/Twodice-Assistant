@@ -2,8 +2,13 @@ import os
 import time
 import misc
 import discord
+import platform
 
-LOG_CHANNEL_ID = 1248628675134488637
+os_name = platform.system()
+if os_name == "Linux":
+    LOG_CHANNEL_ID = 1244676938002468939
+else:
+    LOG_CHANNEL_ID = 1248628675134488637
 now = time.localtime()
 
 

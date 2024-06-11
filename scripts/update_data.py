@@ -26,7 +26,7 @@ def update_1d():
     # 100명 랭킹 업데이트 -> 100초 = 1분 40초
     rankdata = gri.get_current_rank_data()
     for i in rankdata:
-        print(rankdata[i]["name"])
+        print("update_1d: " + rankdata[i]["name"])
         rp.register_player(rankdata[i]["name"])
 
     # 1초마다 1명의 name을 업데이트 -> 1000명이면 1000초 = 16분 40초
@@ -37,7 +37,7 @@ def update_1d():
 
     for key in keys_list:
         while True:
-            print(key)
+            print("update_1d: " + key)
             response = requests.get(
                 f"https://sessionserver.mojang.com/session/minecraft/profile/{key}"
             )
@@ -133,25 +133,25 @@ def update_data():
                 "Date,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30\n"
             )
 
-    # schedule.every().hour.at(":00").do(update_5m)
-    # schedule.every().hour.at(":05").do(update_5m)
-    # schedule.every().hour.at(":10").do(update_5m)
-    # schedule.every().hour.at(":15").do(update_5m)
-    # schedule.every().hour.at(":20").do(update_5m)
-    # schedule.every().hour.at(":25").do(update_5m)
-    # schedule.every().hour.at(":30").do(update_5m)
-    # schedule.every().hour.at(":35").do(update_5m)
-    # schedule.every().hour.at(":40").do(update_5m)
-    # schedule.every().hour.at(":45").do(update_5m)
-    # schedule.every().hour.at(":50").do(update_5m)
-    # schedule.every().hour.at(":55").do(update_5m)
+    schedule.every().hour.at(":00").do(update_5m)
+    schedule.every().hour.at(":05").do(update_5m)
+    schedule.every().hour.at(":10").do(update_5m)
+    schedule.every().hour.at(":15").do(update_5m)
+    schedule.every().hour.at(":20").do(update_5m)
+    schedule.every().hour.at(":25").do(update_5m)
+    schedule.every().hour.at(":30").do(update_5m)
+    schedule.every().hour.at(":35").do(update_5m)
+    schedule.every().hour.at(":40").do(update_5m)
+    schedule.every().hour.at(":45").do(update_5m)
+    schedule.every().hour.at(":50").do(update_5m)
+    schedule.every().hour.at(":55").do(update_5m)
 
-    # schedule.every().day.at("23:30").do(update_1d)
+    schedule.every().day.at("23:30").do(update_1d)
 
-    # threading.Thread(target=timer, daemon=True).start()
+    threading.Thread(target=timer, daemon=True).start()
 
-    update_5m()
-    update_1d()
+    # update_5m()
+    # update_1d()
 
 
 if __name__ == "__main__":
