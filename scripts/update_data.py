@@ -109,7 +109,7 @@ def update_data():
     if not os.path.exists(misc.convert_path("data\\registered_player_list.json")):
         with open(misc.convert_path("data\\registered_player_list.json"), "w") as file:
             file.write("{}")
-            
+
     if not os.path.exists(misc.convert_path("data\\uuids.json")):
         with open(misc.convert_path("data\\uuids.json"), "w") as file:
             file.write("{}")
@@ -133,25 +133,25 @@ def update_data():
                 "Date,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30\n"
             )
 
-    schedule.every().hour.at(":00").do(update_5m)
-    schedule.every().hour.at(":05").do(update_5m)
-    schedule.every().hour.at(":10").do(update_5m)
-    schedule.every().hour.at(":15").do(update_5m)
-    schedule.every().hour.at(":20").do(update_5m)
-    schedule.every().hour.at(":25").do(update_5m)
-    schedule.every().hour.at(":30").do(update_5m)
-    schedule.every().hour.at(":35").do(update_5m)
-    schedule.every().hour.at(":40").do(update_5m)
-    schedule.every().hour.at(":45").do(update_5m)
-    schedule.every().hour.at(":50").do(update_5m)
-    schedule.every().hour.at(":55").do(update_5m)
+    # schedule.every().hour.at(":00").do(update_5m)
+    # schedule.every().hour.at(":05").do(update_5m)
+    # schedule.every().hour.at(":10").do(update_5m)
+    # schedule.every().hour.at(":15").do(update_5m)
+    # schedule.every().hour.at(":20").do(update_5m)
+    # schedule.every().hour.at(":25").do(update_5m)
+    # schedule.every().hour.at(":30").do(update_5m)
+    # schedule.every().hour.at(":35").do(update_5m)
+    # schedule.every().hour.at(":40").do(update_5m)
+    # schedule.every().hour.at(":45").do(update_5m)
+    # schedule.every().hour.at(":50").do(update_5m)
+    # schedule.every().hour.at(":55").do(update_5m)
 
-    schedule.every().day.at("23:30").do(update_1d)
+    # schedule.every().day.at("23:30").do(update_1d)
 
-    threading.Thread(target=timer, daemon=True).start()
+    # threading.Thread(target=timer, daemon=True).start()
 
-    # update_5m()
-    # update_1d()
+    update_5m()
+    update_1d()
 
 
 if __name__ == "__main__":

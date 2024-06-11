@@ -1,4 +1,4 @@
-import os
+import csv
 import json
 import time
 import misc
@@ -42,6 +42,24 @@ def register_player(name, slot=None):
 
         else:
             slot = 1
+
+    if not uuid in data:
+        with open(misc.convert_path("data\\playerdata.csv"), "r") as f:
+            reader = csv.reader(f)
+            playerdata = list(reader)
+
+        playerdata[0].append(f"{uuid}-{1}")
+        playerdata[0].append(f"{uuid}-{2}")
+        playerdata[0].append(f"{uuid}-{3}")
+
+        for i in range(1, len(playerdata)):
+            playerdata[i].append("-1")
+            playerdata[i].append("-1")
+            playerdata[i].append("-1")
+
+        with open(misc.convert_path("data\\playerdata.csv"), "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(playerdata)
 
     data[uuid] = slot
 
