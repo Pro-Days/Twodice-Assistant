@@ -85,14 +85,17 @@ def get_character_info(name, slot=1, period=7, default=True):
 
     plt.figure(figsize=(10, 4))
 
-    x = np.arange(len(df["date"]))
-    x_new = np.linspace(x.min(), x.max(), len(df["date"]) * 3 - 2)
-    spl = make_interp_spline(x, df["level"], k=2)  # k=3 은 cubic spline 을 의미
-    y_smooth = spl(x_new)
+    if period == 1:
+        plt.plot("date", "level", data=df, marker="o")
+    else:
+        x = np.arange(len(df["date"]))
+        x_new = np.linspace(x.min(), x.max(), len(df["date"]) * 3 - 2)
+        k = min(3, len(df["date"]) - 1)  # k=0일때 오류 발생
+        spl = make_interp_spline(x, df["level"], k=k)
+        y_smooth = spl(x_new)
 
-    plt.plot(df["date"], df["level"], "o")
-    plt.plot(df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
-    # plt.plot("date", "level", data=df, marker="o")
+        plt.plot(df["date"], df["level"], "o")
+        plt.plot(df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
     y_min = df["level"].min()
     y_max = df["level"].max()
     y_range = y_max - y_min
@@ -142,7 +145,8 @@ def get_character_info(name, slot=1, period=7, default=True):
     # Set date format on x-axis
     date_format = mdates.DateFormatter("%m월 %d일")
     ax.xaxis.set_major_formatter(date_format)
-    ax.xaxis.set_major_locator(mdates.DayLocator())
+    if period != 1:
+        ax.xaxis.set_major_locator(mdates.DayLocator())
 
     for i, row in df.iterrows():
         if i % ((period // 20) + 1) == (period // 20):
