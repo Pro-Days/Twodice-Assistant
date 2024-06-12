@@ -144,42 +144,37 @@ async def hanwol(message, ans_json):
     elif ans_json["fn_id"] == 1:
         temp_message = await bot.send_temp_message(discord_client, message)
 
-        info, image = gsi.get_server_info()
+        msg, image = gsi.get_current_server_info()
 
-        if info != None:
-            vote, pl = info
+        if info["player"] is not None:
+            if info["vote"] is None:
+                msg = [
+                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이에요",
+                    f"지금 한월의 접속자 수는 {info["player"]}명이에요",
+                    f"현재 한월의 접속자 수는 {info["player"]}명이에요",
+                    f"한월 서버의 접속자 수는 {info["player"]}명이에요",
+                ]
+            else:
+                msg = [
+                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지의 추천 수는 {info["vote"]}개에요.",
+                    f"한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지의 추천 수는 {info["vote"]}개에요.",
+                    f"현재 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지에서의 추천 수는 {info["vote"]}개에요.",
+                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지에서의 추천 수는 {info["vote"]}개에요.",
+                ]
 
-        match info, image:
-            case None, None:
+        else:
+            if info["vote"] is None:
                 msg = [
                     "죄송하지만 지금은 서버 정보를 가져올 수 없어요.",
                     "죄송해요. 마인리스트와 마인페이지에서 정보를 가져오는데 실패했어요.",
                     "죄송하지만 서버 정보를 가져오는 데 문제가 발생했어요.",
                     "죄송하지만 지금은 마인리스트와 마인페이지에서 정보를 가져올 수 없어요.",
                 ]
-
-            case None, _:
+            else:
                 msg = [
-                    "마인리스트에 등록되어있는 정보를 보여드릴게요.",
-                    "마인리스트에 등록된 정보를 가져왔어요.",
-                    "마인리스트에 등록된 정보를 보여드릴게요.",
-                    "아래 이미지는 마인리스트에서 가져온 서버 정보에요.",
-                ]
-
-            case _, None:
-                msg = [
-                    f"마인페이지에 따르면 한월 서버의 현재 접속자 수는 {pl}명이고, 추천 수는 {vote}개에요.",
-                    f"마인페이지에서 확인된 정보로는 한월 서버의 현재 접속자 수는 {pl}명이고, 추천 수는 {vote}개에요.",
-                    f"마인페이지에 따르면 지금 한월 서버의 접속자 수는 {pl}명이고 추천 수는 {vote}개에요.",
-                    f"마인리스트가 제공하는 데이터에 따르면 현재 한월 서버의 접속자 수는 {pl}명이고 추천 수는 {vote}개에요.",
-                ]
-
-            case _, _:
-                msg = [
-                    f"마인페이지에 따르면 한월 서버의 현재 접속자 수는 {pl}명이고, 추천 수는 {vote}개에요.\n아래 이미지는 마인리스트에 등록되어있는 정보에요.",
-                    f"마인페이지에서 확인된 정보로는 한월 서버의 현재 접속자 수는 {pl}명이고, 추천 수는 {vote}개에요.\n마인페이지에서는 아래 이미지와 같은 정보를 제공하고 있어요.",
-                    f"마인페이지에 따르면 지금 한월 서버의 접속자 수는 {pl}명이고 추천 수는 {vote}개에요.\n이 이미지는 마인리스트가 제공하는 정보에요.",
-                    f"마인리스트가 제공하는 데이터에 따르면 현재 한월 서버의 접속자 수는 {pl}명이고 추천 수는 {vote}개에요.\n마인리스트는 아래와 같은 정보를 제공하고 있어요.",
+                    f"지금 한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
+                    f"한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
+                    f"현재 한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
                 ]
 
         await bot.send(
@@ -343,4 +338,4 @@ if __name__ == "__main__":
     print(f"디스코드 로그아웃 성공")
     # disconnect_nordvpn()
 
-    print("종료 - Ip: " + misc.get_ip())
+    print("종료")

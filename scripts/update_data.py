@@ -7,26 +7,25 @@ import requests
 import schedule
 import datetime
 import threading
+from pytz import timezone
 import get_server_info as gsi
 import register_player as rp
 import get_rank_info as gri
 import get_character_info as gci
 
-
 def update_5m():
     """서버 데이터 업데이트"""
-    (vote, player), _ = gsi.get_server_info()
+    info = gsi.get_current_server_info()
 
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M")
     with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
-        file.write(f"{current_time},{player},{vote}\n")
+        file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
 
 
 def update_1d():
     # 100명 랭킹 업데이트 -> 100초 = 1분 40초
     rankdata = gri.get_current_rank_data()
     for i in rankdata:
-        print("update_1d: " + rankdata[i]["name"])
         rp.register_player(rankdata[i]["name"])
 
     # 1초마다 1명의 name을 업데이트 -> 1000명이면 1000초 = 16분 40초
@@ -37,7 +36,6 @@ def update_1d():
 
     for key in keys_list:
         while True:
-            print("update_1d: " + key)
             response = requests.get(
                 f"https://sessionserver.mojang.com/session/minecraft/profile/{key}"
             )
@@ -55,7 +53,7 @@ def update_1d():
         time.sleep(1)
 
     ## 플레이어, 랭킹 업데이트
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d")
 
     # 랭킹 업데이트
     data = gri.get_current_rank_data()
@@ -116,7 +114,7 @@ def update_data():
 
     if not os.path.exists(misc.convert_path("data\\serverdata.csv")):
         with open(misc.convert_path("data\\serverdata.csv"), "w") as file:
-            file.write("YYYY-MM-DD-HH-MM,Pl,Vt\n")
+            file.write("YYYY-MM-DD HH:MM,players,votes\n")
 
     if not os.path.exists(misc.convert_path("data\\playerdata.csv")):
         with open(misc.convert_path("data\\playerdata.csv"), "w") as file:

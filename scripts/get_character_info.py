@@ -3,14 +3,14 @@ import csv
 import json
 import misc
 import random
+import numpy as np
 import pandas as pd
+import get_rank_info as gri
 import register_player as rp
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.font_manager as fm
-import get_rank_info as gri
-import numpy as np
-from scipy.interpolate import make_interp_spline
+from scipy.interpolate import PchipInterpolator
 
 
 plt.style.use("seaborn-v0_8-pastel")
@@ -85,14 +85,20 @@ def get_character_info(name, slot=1, period=7, default=True):
 
     plt.figure(figsize=(10, 4))
 
+    smooth_coeff = 10
+
     if period == 1:
         plt.plot("date", "level", data=df, marker="o")
     else:
         x = np.arange(len(df["date"]))
-        x_new = np.linspace(x.min(), x.max(), len(df["date"]) * 3 - 2)
-        k = min(3, len(df["date"]) - 1)  # k=0일때 오류 발생
-        spl = make_interp_spline(x, df["level"], k=k)
-        y_smooth = spl(x_new)
+        x_new = np.linspace(
+            x.min(), x.max(), len(df["date"]) * smooth_coeff - smooth_coeff + 1
+        )
+        # k = min(2, len(df["date"]) - 1)  # k=0일때 오류 발생
+        # spl = make_interp_spline(x, df["level"], k=k)
+        # y_smooth = spl(x_new)
+        pchip = PchipInterpolator(x, df["level"])
+        y_smooth = pchip(x_new)
 
         plt.plot(df["date"], df["level"], "o")
         plt.plot(df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
@@ -132,8 +138,11 @@ def get_character_info(name, slot=1, period=7, default=True):
             case "7":
                 color = "#DCBFFF"
         plt.fill_between(
-            df["date"][0] + pd.to_timedelta(x_new[i * 3 : i * 3 + 4], unit="D"),
-            y_smooth[i * 3 : i * 3 + 4],
+            df["date"][0]
+            + pd.to_timedelta(
+                x_new[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1], unit="D"
+            ),
+            y_smooth[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1],
             color=color,
             alpha=1,
         )

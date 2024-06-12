@@ -1,34 +1,83 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from scipy.interpolate import make_interp_spline
+from io import StringIO
 
-# 예제 데이터 생성
-dates = pd.date_range(start="2024-01-01", end="2024-01-10", freq="D")
+# Provided CSV data as a string
+csv_data = """
+YYYY-MM-DD HH:MM,players,votes
+2024-06-12 06:40,677,7544
+2024-06-12 06:45,677,7544
+2024-06-12 06:50,677,7544
+2024-06-12 06:55,677,7544
+2024-06-12 07:00,677,7544
+2024-06-12 07:05,696,7546
+2024-06-12 07:10,696,7546
+2024-06-12 07:15,696,7546
+2024-06-12 07:20,696,7546
+2024-06-12 07:25,696,7546
+2024-06-12 07:30,734,7548
+2024-06-12 07:35,734,7548
+2024-06-12 07:40,734,7548
+2024-06-12 07:45,734,7548
+2024-06-12 07:50,768,7549
+2024-06-12 07:55,768,7549
+2024-06-12 08:00,768,7549
+2024-06-12 08:05,768,7549
+2024-06-12 08:10,768,7549
+2024-06-12 08:15,831,7549
+2024-06-12 08:20,831,7549
+2024-06-12 08:25,831,7549
+2024-06-12 08:30,831,7549
+2024-06-12 08:35,831,7549
+2024-06-12 08:40,846,7551
+2024-06-12 08:45,846,7551
+2024-06-12 08:50,846,7551
+2024-06-12 08:55,846,7551
+2024-06-12 09:00,892,7552
+2024-06-12 09:05,892,7552
+2024-06-12 09:10,892,7552
+2024-06-12 09:15,892,7552
+2024-06-12 09:20,892,7552
+2024-06-12 09:25,939,7552
+2024-06-12 09:30,939,7552
+2024-06-12 09:35,939,7552
+2024-06-12 09:40,939,7552
+2024-06-12 09:45,962,7552
+2024-06-12 09:50,962,7552
+2024-06-12 09:55,962,7552
+2024-06-12 10:00,962,7552
+2024-06-12 10:05,962,7552
+2024-06-12 10:10,978,7552
+2024-06-12 10:15,978,7552
+2024-06-12 10:20,978,7552
+"""
 
-# 날짜를 숫자로 변환 (보간을 위해)
-x = np.arange(len(dates))
-y = np.array([10, 12, 13, 14, 17, 20, 22, 27, 31, 35])
+# Read the data into a DataFrame
+data = pd.read_csv(StringIO(csv_data), parse_dates=["YYYY-MM-DD HH:MM"])
 
-# 점들을 부드러운 선으로 보간
-x_new = np.linspace(x.min(), x.max(), 30)
-spl = make_interp_spline(x, y, k=3)  # k=3 은 cubic spline 을 의미
-y_smooth = spl(x_new)
+# Create a figure and a set of subplots
+fig, ax1 = plt.subplots(figsize=(12, 6))
 
-# 그래프 그리기
-plt.figure(figsize=(10, 6))
-plt.plot(dates, y, "o", label="Original Data")
-plt.plot(dates[0] + pd.to_timedelta(x_new, unit="D"), y_smooth, label="Smoothed Line")
+# Plot players over time on the first y-axis
+ax1.plot(
+    data["YYYY-MM-DD HH:MM"], data["players"], label="Players", marker="o", color="b"
+)
+ax1.set_xlabel("Time")
+ax1.set_ylabel("Players", color="b")
+ax1.tick_params(axis="y", labelcolor="b")
 
-# x축을 날짜 형식으로 포맷팅
-plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter("%Y-%m-%d"))
-plt.gca().xaxis.set_major_locator(plt.matplotlib.dates.DayLocator(interval=1))
-plt.gcf().autofmt_xdate()
+# Create a second y-axis sharing the same x-axis
+ax2 = ax1.twinx()
+ax2.plot(data["YYYY-MM-DD HH:MM"], data["votes"], label="Votes", marker="x", color="r")
+ax2.set_ylabel("Votes", color="r")
+ax2.tick_params(axis="y", labelcolor="r")
 
-# 그래프 꾸미기
-plt.xlabel("Date")
-plt.ylabel("Values")
-plt.title("Smooth Line Connecting Points")
-plt.legend()
-plt.grid(True)
+# Adding title
+plt.title("Players and Votes Over Time")
+
+# Rotating date labels for better readability
+# fig.autofmt_xdate()
+
+# Show the plot
+plt.tight_layout()
 plt.show()

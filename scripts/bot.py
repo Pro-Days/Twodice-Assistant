@@ -3,13 +3,14 @@ import time
 import misc
 import discord
 import platform
+import datetime
+from pytz import timezone
 
 os_name = platform.system()
 if os_name == "Linux":
     LOG_CHANNEL_ID = 1244676938002468939
 else:
     LOG_CHANNEL_ID = 1248628675134488637
-now = time.localtime()
 
 
 async def send_temp_message(discord_client, message):
@@ -65,7 +66,9 @@ async def send_log(discord_client, log_type, var=None):
         embed.color = discord.Color.green()
 
         embed_json = {
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", now),
+            "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
             "ip": misc.get_ip(),
             "server_count": str(len(discord_client.guilds)),
             "server_list": "```"
@@ -93,7 +96,9 @@ async def send_log(discord_client, log_type, var=None):
         embed.color = discord.Color.orange()
 
         embed_json = {
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", now),
+            "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
         }
 
         for key, value in embed_json.items():
@@ -111,7 +116,9 @@ async def send_log(discord_client, log_type, var=None):
         guild = await discord_client.fetch_guild(message.guild.id)
         member = await guild.fetch_member(message.author.id)
         embed_json = {
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", now),
+            "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
             "server": message.guild.name,
             "channel": message.channel.mention,
             "author": f"{member.display_name} ({message.author.name})",
@@ -149,7 +156,9 @@ async def send_log(discord_client, log_type, var=None):
         guild = await discord_client.fetch_guild(message.guild.id)
         member = await guild.fetch_member(message.author.id)
         embed_json = {
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", now),
+            "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
             "server": message.guild.name,
             "channel": message.channel.mention,
             "author": f"{member.display_name} ({message.author.name})",
@@ -178,7 +187,9 @@ async def send_log(discord_client, log_type, var=None):
         guild = await discord_client.fetch_guild(message.guild.id)
         member = await guild.fetch_member(message.author.id)
         embed_json = {
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", now),
+            "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
             "server": message.guild.name,
             "channel": message.channel.mention,
             "author": f"{member.display_name} ({message.author.name})",
