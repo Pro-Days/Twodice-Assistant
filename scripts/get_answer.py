@@ -139,7 +139,7 @@ qna = [
         '{ "fn_id": 4, "q": false, "text": "", "var": {"name":"pro_days", "slot":2} }',
     ],
     [
-        "서버 정보 알려줘",
+        "서버 정보",
         '{ "fn_id": 1, "q": false, "text": null, "var": {} }',
     ],
     [

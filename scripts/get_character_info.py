@@ -66,6 +66,7 @@ def get_current_character_data(name):
 def get_character_info(name, slot=1, period=7, default=True):
     all_character_avg = get_all_character_avg()
     data = get_character_data(name, slot)
+    name = misc.get_real_name(name)
 
     if data == None:
         if slot == 1:
@@ -83,41 +84,74 @@ def get_character_info(name, slot=1, period=7, default=True):
     df_avg = pd.DataFrame(all_character_avg)
     df_avg["date"] = pd.to_datetime(df_avg["date"])
 
-    plt.figure(figsize=(10, 4))
-
-    smooth_coeff = 10
-
-    if period == 1:
-        plt.plot("date", "level", data=df, marker="o")
-    else:
-        x = np.arange(len(df["date"]))
-        x_new = np.linspace(
-            x.min(), x.max(), len(df["date"]) * smooth_coeff - smooth_coeff + 1
-        )
-        # k = min(2, len(df["date"]) - 1)  # k=0일때 오류 발생
-        # spl = make_interp_spline(x, df["level"], k=k)
-        # y_smooth = spl(x_new)
-        pchip = PchipInterpolator(x, df["level"])
-        y_smooth = pchip(x_new)
-
-        plt.plot(df["date"], df["level"], "o")
-        plt.plot(df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
     y_min = df["level"].min()
     y_max = df["level"].max()
     y_range = y_max - y_min
-
-    if y_min == y_max:
-        plt.ylim(y_max - 1, y_max + 1)
-    else:
-        plt.ylim(y_min - 0.1 * y_range, y_max + 0.3 * y_range)
 
     display_avg = not (
         (df_avg["level"].max() < y_min - 0.1 * y_range)
         or (df_avg["level"].min() > y_max + 0.3 * y_range)
     )
+
+    plt.figure(figsize=(10, 4))
+    smooth_coeff = 10
+
     if display_avg:
-        plt.plot("date", "level", data=df_avg, marker="o")
-    # plt.title(f"{name}의 {slot}번 캐릭터의 레벨 변화 그래프")
+        labels = [
+            (f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"),
+            "등록된 전체 캐릭터의 평균 레벨",
+        ]
+    else:
+        labels = [
+            f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"
+        ]
+
+    if period == 1:
+        plt.plot("date", "level", data=df, marker="C0o", label=labels[0])
+        if display_avg:
+            plt.plot("date", "level", data=df_avg, marker="C2o", label=labels[1])
+    else:
+
+        x = np.arange(len(df["date"]))
+        x_new = np.linspace(
+            x.min(), x.max(), len(df["date"]) * smooth_coeff - smooth_coeff + 1
+        )
+        pchip = PchipInterpolator(x, df["level"])
+        y_smooth = pchip(x_new)
+
+        plt.plot(df["date"], df["level"], "C0o", label=labels[0])
+        plt.plot(
+            df["date"][0] + pd.to_timedelta(x_new, unit="D"),
+            y_smooth,
+            "C0-",
+        )
+
+        if display_avg:
+            x_avg = np.arange(len(df_avg["date"]))
+            x_new_avg = np.linspace(
+                x_avg.min(),
+                x_avg.max(),
+                len(df_avg["date"]) * smooth_coeff - smooth_coeff + 1,
+            )
+            pchip_avg = PchipInterpolator(x_avg, df_avg["level"])
+            y_smooth_avg = pchip_avg(x_new_avg)
+
+            plt.plot(
+                df_avg["date"],
+                df_avg["level"],
+                "C2o",
+                label=labels[1],
+            )
+            plt.plot(
+                df_avg["date"][0] + pd.to_timedelta(x_new_avg, unit="D"),
+                y_smooth_avg,
+                "C2-",
+            )
+
+    if y_min == y_max:
+        plt.ylim(y_max - 1, y_max + 1)
+    else:
+        plt.ylim(y_min - 0.1 * y_range, y_max + 0.3 * y_range)
 
     for i in range(len(df) - 1):
         match df["job"][i]:
@@ -172,28 +206,8 @@ def get_character_info(name, slot=1, period=7, default=True):
     ax.spines["left"].set_visible(False)
     # ax.spines["bottom"].set_visible(False)
 
-    name = misc.get_real_name(name)
-
     plt.yticks([])
-    if display_avg:
-        plt.legend(
-            loc="upper left",
-            labels=[
-                (
-                    f"{name}의 캐릭터 레벨"
-                    if default
-                    else f"{name}의 {slot}번 캐릭터 레벨"
-                ),
-                "등록된 전체 캐릭터의 평균 레벨",
-            ],
-        )
-    else:
-        plt.legend(
-            loc="upper left",
-            labels=[
-                f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"
-            ],
-        )
+    plt.legend(loc="upper left")
 
     image_path = misc.convert_path("assets\\images\\character_info.png")
     os.makedirs(

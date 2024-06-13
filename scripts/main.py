@@ -144,42 +144,13 @@ async def hanwol(message, ans_json):
     elif ans_json["fn_id"] == 1:
         temp_message = await bot.send_temp_message(discord_client, message)
 
-        msg, image = gsi.get_current_server_info()
+        period = ans_json["var"]["period"] if "period" in ans_json["var"] else 7
 
-        if info["player"] is not None:
-            if info["vote"] is None:
-                msg = [
-                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이에요",
-                    f"지금 한월의 접속자 수는 {info["player"]}명이에요",
-                    f"현재 한월의 접속자 수는 {info["player"]}명이에요",
-                    f"한월 서버의 접속자 수는 {info["player"]}명이에요",
-                ]
-            else:
-                msg = [
-                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지의 추천 수는 {info["vote"]}개에요.",
-                    f"한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지의 추천 수는 {info["vote"]}개에요.",
-                    f"현재 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지에서의 추천 수는 {info["vote"]}개에요.",
-                    f"지금 한월 서버의 접속자 수는 {info["player"]}명이고 마인페이지에서의 추천 수는 {info["vote"]}개에요.",
-                ]
-
-        else:
-            if info["vote"] is None:
-                msg = [
-                    "죄송하지만 지금은 서버 정보를 가져올 수 없어요.",
-                    "죄송해요. 마인리스트와 마인페이지에서 정보를 가져오는데 실패했어요.",
-                    "죄송하지만 서버 정보를 가져오는 데 문제가 발생했어요.",
-                    "죄송하지만 지금은 마인리스트와 마인페이지에서 정보를 가져올 수 없어요.",
-                ]
-            else:
-                msg = [
-                    f"지금 한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
-                    f"한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
-                    f"현재 한월 서버의 마인페이지 추천 수는 {info["vote"]}개에요.",
-                ]
+        msg, image = gsi.get_server_info(period)
 
         await bot.send(
             discord_client,
-            random.choice(msg),
+            msg,
             message,
             ans_json,
             image=image,
@@ -263,7 +234,7 @@ async def hanwol(message, ans_json):
             default = False
 
         else:
-            slot = 1  # 1~3
+            slot = rp.get_main_slot(name)  # 1~3
             default = True
 
         period = ans_json["var"]["period"] if "period" in ans_json["var"] else 7

@@ -2,17 +2,18 @@ import os
 import csv
 import json
 import misc
-import time
-import threading
+import math
+import json
+import random
+import traceback
 import requests
+import threading
 import pandas as pd
-import numpy as np
 from selenium import webdriver
+from mcstatus import JavaServer
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import matplotlib.font_manager as fm
 from selenium.webdriver.common.by import By
-from scipy.interpolate import PchipInterpolator
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -47,6 +48,13 @@ fm.fontManager.addfont(font_path)
 prop = fm.FontProperties(fname=font_path)
 plt.rcParams["font.family"] = prop.get_name()
 
+server_ip = "mineplanet.kr"
+
+red = "#FF7070"
+blue = "#7070FF"
+light_red = "#FFA0A0"
+light_blue = "#A0A0FF"
+
 
 def hanwol(ans):
     ans_json = json.loads(ans)
@@ -62,9 +70,9 @@ def fetch_data(func, result_dict):
     result_dict.update(result)
 
 
-def get_server_info(period=7):
+def get_server_info(period):
     csv_data = []
-    data = {"time": [], "player": [], "vote": []}
+    data = {"timestamp": [], "players": [], "votes": []}
 
     with open(misc.convert_path("data\\serverdata.csv"), "r") as file:
         reader = csv.reader(file)
@@ -72,127 +80,74 @@ def get_server_info(period=7):
             csv_data.append(row)
 
         for i in range(1, len(csv_data)):
-            data["time"].append(csv_data[i][0])
-            if i != len(csv_data) - 1:
-                player, vote = csv_data[i][1], csv_data[i][2]
-                data["player"].append(int(player))
-                data["vote"].append(int(vote))
+            data["timestamp"].append(csv_data[i][0])
+            player, vote = csv_data[i][1], csv_data[i][2]
+            if player == "None":
+                player = 0
+            if vote == "None":
+                vote = 0
+            data["players"].append(float(player))
+            data["votes"].append(float(vote))
 
-        info = get_current_server_info()
-        data["player"].append(info["player"])
-        data["vote"].append(info["vote"])
-
-    if len(data["time"]) <= period * 288:
-        period = len(data["time"])
-    else:
-        period = period * 288
-    for i in data:
-        data[i] = data[i][-period:]
     df = pd.DataFrame(data)
-    df["time"] = pd.to_datetime(df["time"])
-
-    plt.figure(figsize=(10, 4))
-    fig, ax1 = plt.subplots()
-
-    smooth_coeff = 10
-    x = np.arange(len(df["time"]))
-    x_new = np.linspace(
-        x.min(), x.max(), len(df["time"]) * smooth_coeff - smooth_coeff + 1
-    )
-
-    color = "tab:blue"
-    ax1.set_xlabel("Month")
-    ax1.set_ylabel("Players", color=color)
-
-    if period == 1:
-        ax1.plot("time", "player", data=df, marker="o")
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df_unique = df.drop_duplicates(subset=["players", "votes"])  # 중복 행 제거
+    if (df["players"].iloc[-1] == df["players"].iloc[-2]) and (
+        df["votes"].iloc[-1] == df["votes"].iloc[-2]
+    ):
+        df_unique = pd.concat([df_unique, df.iloc[[-1]]], ignore_index=True)
+    if len(df["timestamp"]) <= period * 288:
+        period = len(df["timestamp"])
     else:
-        pchip = PchipInterpolator(x, df["player"])
-        y_smooth = pchip(x_new)
+        period *= 288
 
-        ax1.plot(df["time"], df["player"], "o", color=color)
-        ax1.plot(df["time"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
-        ax1.tick_params(axis="y", labelcolor=color)
+    for col in df_unique.columns:
+        df_unique.loc[:, col] = df_unique[col].iloc[-period:]
+    df_unique = df_unique.dropna()
+
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    ax1.plot(
+        df_unique["timestamp"],
+        df_unique["players"],
+        "-",
+        label="플레이어 수",
+        color=light_blue,
+    )
+    ax1.fill_between(
+        df_unique["timestamp"],
+        df_unique["players"],
+        color=light_blue,
+        alpha=0.2,
+    )
+    # ax1.set_ylabel(
+    #     "플레이어 수",
+    #     color=blue,
+    #     labelpad=40,
+    #     rotation=0,
+    #     fontsize=16,
+    #     loc="center",
+    # )
+    ax1.tick_params(axis="y", labelcolor=light_blue)
 
     ax2 = ax1.twinx()
-    color = "tab:red"
-    if period == 1:
-        ax2.plot("time", "vote", data=df, marker="o")
-    else:
-        pchip = PchipInterpolator(x, df["vote"])
-        y_smooth = pchip(x_new)
-
-        ax2.plot(df["time"], df["vote"], "o", color=color)
-        ax2.plot(df["time"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth, "C0-")
-        ax2.tick_params(axis="y", labelcolor=color)
-
-    # for i in range(len(df) - 1):
-    #     match df["job"][i]:
-    #         case "0":
-    #             color = "#A0DEFF"
-    #         case "1":
-    #             color = "#FED0E9"
-    #         case "2":
-    #             color = "#ffa0a0"
-    #         case "3":
-    #             color = "#DFCCFB"
-    #         case "4":
-    #             color = "#FFCF96"
-    #         case "5":
-    #             color = "#97E7E1"
-    #         case "6":
-    #             color = "#CAF4FF"
-    #         case "7":
-    #             color = "#DCBFFF"
-    #     plt.fill_between(
-    #         df["date"][0]
-    #         + pd.to_timedelta(
-    #             x_new[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1], unit="D"
-    #         ),
-    #         y_smooth[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1],
-    #         color=color,
-    #         alpha=1,
-    #     )
-    #     # df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth
-    #     # 0~4, 3~7, 6~10, 9~13, 12~16
-
-    ax = plt.gca()
-
-    # Set date format on x-axis
-    date_format = mdates.DateFormatter("%m월 %d일 %H시 %M분")
-    ax.xaxis.set_major_formatter(date_format)
-    if period != 1:
-        ax.xaxis.set_major_locator(mdates.DayLocator())
-
-    for i, row in df.iterrows():
-        if i % ((period // 288) + 1) == (period // 288):
-            ax1.annotate(
-                f'{row["player"]}명',
-                (row["time"], row["player"]),
-                textcoords="offset points",
-                xytext=(0, 10),
-                ha="center",
-            )
-            ax2.annotate(
-                f'{row["vote"]}개',
-                (row["time"], row["vote"]),
-                textcoords="offset points",
-                xytext=(0, 10),
-                ha="center",
-            )
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-
-    # plt.yticks([])
-    plt.legend(
-        loc="upper left",
-        labels=[
-            f"플레이어 수",
-            f"추천 수",
-        ],
+    ax2.plot(
+        df_unique["timestamp"],
+        df_unique["votes"],
+        label="추천 수",
+        color=light_red,
     )
+    # ax2.set_ylabel(
+    #     "추천 수",
+    #     color=red,
+    #     labelpad=30,
+    #     rotation=0,
+    #     fontsize=16,
+    #     loc="center",
+    # )
+    ax2.tick_params(axis="y", labelcolor=light_red)
+
+    fig.legend(loc="upper left", bbox_to_anchor=(0.13, 0.88))
 
     image_path = misc.convert_path("assets\\images\\server_info.png")
     os.makedirs(
@@ -202,7 +157,48 @@ def get_server_info(period=7):
     plt.savefig(image_path, dpi=300, bbox_inches="tight")
     plt.close()
 
-    return "msg", image_path
+    info = get_current_server_info()
+    image_msg = random.choice(
+        [
+            f"아래 이미지는 최근 {math.ceil(period / 288)}일간 한월 서버의 플레이어 수와 마인페이지 추천 수의 그래프에요.",
+            f"아래 이미지는 지난 {math.ceil(period / 288)}일간 플레이어 수와 추천 수의 그래프에요.",
+        ]
+    )
+
+    match info["player"], info["vote"]:
+        case None, None:
+            msg = image_msg
+        case None, _:
+            msg = random.choice(
+                [
+                    f"지금 한월 서버의 마인페이지 추천 수는 {info['vote']}개에요.",
+                    f"한월 서버의 마인페이지 추천 수는 {info['vote']}개에요.",
+                    f"현재 한월 서버의 마인페이지 추천 수는 {info['vote']}개에요.",
+                ]
+            )
+            msg += "\n" + image_msg
+        case _, None:
+            msg = random.choice(
+                [
+                    f"지금 한월 서버의 접속자 수는 {info['player']}명이에요",
+                    f"지금 한월의 접속자 수는 {info['player']}명이에요",
+                    f"현재 한월의 접속자 수는 {info['player']}명이에요",
+                    f"한월 서버의 접속자 수는 {info['player']}명이에요",
+                ]
+            )
+            msg += "\n" + image_msg
+        case _, _:
+            msg = random.choice(
+                [
+                    f"지금 한월 서버의 접속자 수는 {info['player']}명이고 마인페이지의 추천 수는 {info['vote']}개에요.",
+                    f"한월 서버의 접속자 수는 {info['player']}명이고 마인페이지의 추천 수는 {info['vote']}개에요.",
+                    f"현재 한월 서버의 접속자 수는 {info['player']}명이고 마인페이지에서의 추천 수는 {info['vote']}개에요.",
+                    f"지금 한월 서버의 접속자 수는 {info['player']}명이고 마인페이지에서의 추천 수는 {info['vote']}개에요.",
+                ]
+            )
+            msg += "\n" + image_msg
+
+    return msg, image_path
 
 
 def get_current_server_info():
@@ -222,7 +218,7 @@ def get_current_server_info():
 
 def get_vote():
     try:
-        url = "https://mine.page/server/mineplanet.kr"
+        url = "https://mine.page/server/" + server_ip
         driver.get(url)
 
         vote = (
@@ -239,9 +235,11 @@ def get_vote():
         )
         vote = int(vote)
 
-    except:
+    except Exception as e:
+        print("vote error1 -------------------")
+        print(traceback.format_exc())
         try:
-            url = "https://mine.page/server/mineplanet.kr"
+            url = "https://mine.page/server/" + server_ip
             driver.get(url)
 
             vote = (
@@ -258,7 +256,9 @@ def get_vote():
             )
             vote = int(vote)
 
-        except:
+        except Exception as e:
+            print("vote error2 -------------------")
+            print(traceback.format_exc())
             vote = None
 
     return {"vote": vote}
@@ -266,23 +266,27 @@ def get_vote():
 
 def get_player():
     try:
-        url = "https://api.mcsrvstat.us/3/mineplanet.kr"
-        response = requests.get(url)
-        server_info = response.json()
-        player = int(server_info["players"]["online"])
+        server = JavaServer(server_ip, 25565)
 
-    except:
+        status = server.status()
+        player = status.players.online
+
+    except Exception as e:
+        print("player error1 -------------------")
+        print(traceback.format_exc())
         try:
-            url = "https://api.mcsrvstat.us/3/mineplanet.kr"
+            url = "https://api.mcsrvstat.us/3/" + server_ip
             response = requests.get(url)
             server_info = response.json()
             player = int(server_info["players"]["online"])
 
-        except:
+        except Exception as e:
+            print("player error2 -------------------")
+            print(traceback.format_exc())
             player = None
 
     return {"player": player}
 
 
 if __name__ == "__main__":
-    hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {} }')
+    hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {"period":7} }')
