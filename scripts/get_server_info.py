@@ -240,7 +240,7 @@ def get_vote():
 
     except Exception as e:
         print("vote error1 -------------------")
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         if driver:
             try:
                 driver.quit()  # Ensure the driver is quit to close all browser windows
@@ -270,7 +270,7 @@ def get_vote():
 
         except Exception as e:
             print("vote error2 -------------------")
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
 
             if driver:
                 try:
@@ -292,7 +292,7 @@ def get_player():
 
     except Exception as e:
         print("player error1 -------------------")
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         try:
             url = "https://api.mcsrvstat.us/3/" + server_ip
             response = requests.get(url)
