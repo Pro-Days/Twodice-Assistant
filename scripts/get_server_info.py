@@ -40,7 +40,6 @@ options.add_experimental_option(
 )
 
 service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
 
 plt.style.use("seaborn-v0_8-pastel")
 font_path = misc.convert_path("assets\\fonts\\NanumSquareRoundEB.ttf")
@@ -49,6 +48,7 @@ prop = fm.FontProperties(fname=font_path)
 plt.rcParams["font.family"] = prop.get_name()
 
 server_ip = "mineplanet.kr"
+# server_ip = "hanwol.skhidc.kr"
 
 red = "#FF7070"
 blue = "#7070FF"
@@ -219,6 +219,7 @@ def get_current_server_info():
 def get_vote():
     try:
         url = "https://mine.page/server/" + server_ip
+        driver = webdriver.Chrome(service=service, options=options)
         driver.get(url)
 
         vote = (
@@ -235,11 +236,20 @@ def get_vote():
         )
         vote = int(vote)
 
+        driver.quit()
+
     except Exception as e:
         print("vote error1 -------------------")
         print(traceback.format_exc())
+        if driver:
+            try:
+                driver.quit()  # Ensure the driver is quit to close all browser windows
+            except:
+                pass
+
         try:
             url = "https://mine.page/server/" + server_ip
+            driver = webdriver.Chrome(service=service, options=options)
             driver.get(url)
 
             vote = (
@@ -256,9 +266,18 @@ def get_vote():
             )
             vote = int(vote)
 
+            driver.quit()
+
         except Exception as e:
             print("vote error2 -------------------")
             print(traceback.format_exc())
+
+            if driver:
+                try:
+                    driver.quit()  # Ensure the driver is quit to close all browser windows
+                except:
+                    pass
+            # send discord error log
             vote = None
 
     return {"vote": vote}
@@ -278,7 +297,9 @@ def get_player():
             url = "https://api.mcsrvstat.us/3/" + server_ip
             response = requests.get(url)
             server_info = response.json()
-            player = int(server_info["players"]["online"])
+            player = (
+                int(server_info["players"]["online"]) if server_info["online"] else 0
+            )
 
         except Exception as e:
             print("player error2 -------------------")
@@ -289,4 +310,5 @@ def get_player():
 
 
 if __name__ == "__main__":
-    hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {"period":7} }')
+    # hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {"period":7} }')
+    print(get_player())
