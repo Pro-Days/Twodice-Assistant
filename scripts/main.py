@@ -40,7 +40,7 @@ async def on_message(message):
         await admin(message)
 
     elif message.content.startswith("!한월"):
-        ans_json = await ga.get_ans(message, questions)
+        ans_json = await ga.get_ans(message)
         try:
             await hanwol(message, ans_json)
         except Exception as e:
@@ -120,16 +120,6 @@ async def hanwol(message, ans_json):
     """
 
     msg = message.content[4:]
-    if ans_json["q"]:
-        questions.append(
-            {
-                "user": message.author.id,
-                "msg": f"USER: {msg}\nASSISTANT: {ans_json}",
-            },
-        )
-        await bot.send(discord_client, ans_json["text"], message, ans_json)
-
-        return
 
     if ans_json["fn_id"] == -1:
         await bot.send(
@@ -302,7 +292,6 @@ async def hanwol(message, ans_json):
 
 
 if __name__ == "__main__":
-    questions = []
     ud.update_data()
     discord_client.run(os.getenv("DISCORD_TOKEN"))
 
