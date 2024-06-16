@@ -8,12 +8,14 @@ import random
 import traceback
 import requests
 import threading
+import numpy as np
 import pandas as pd
 from selenium import webdriver
 from mcstatus import JavaServer
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from selenium.webdriver.common.by import By
+from scipy.interpolate import PchipInterpolator
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -60,7 +62,8 @@ def hanwol(ans):
     ans_json = json.loads(ans)
 
     if ans_json["fn_id"] == 1:
-        msg, image = get_server_info()
+        period = ans_json["var"]["period"]
+        msg, image = get_server_info(period)
         print("msg: ", msg)
         print("image: ", image)
 
@@ -91,60 +94,76 @@ def get_server_info(period):
 
     df = pd.DataFrame(data)
     df["timestamp"] = pd.to_datetime(df["timestamp"])
-    df_unique = df.drop_duplicates(subset=["players", "votes"])  # 중복 행 제거
-    if (df["players"].iloc[-1] == df["players"].iloc[-2]) and (
-        df["votes"].iloc[-1] == df["votes"].iloc[-2]
-    ):
-        df_unique = pd.concat([df_unique, df.iloc[[-1]]], ignore_index=True)
     if len(df["timestamp"]) <= period * 288:
         period = len(df["timestamp"])
     else:
         period *= 288
+    for col in df.columns:
+        df.loc[:, col] = df[col].iloc[-period:]
 
-    for col in df_unique.columns:
-        df_unique.loc[:, col] = df_unique[col].iloc[-period:]
-    df_unique = df_unique.dropna()
+    df_uniqueP = df.drop_duplicates(subset=["players"])  # 중복 행 제거
+    df_uniqueV = df.drop_duplicates(subset=["votes"])  # 중복 행 제거
+    if (df["players"].iloc[-1] == df["players"].iloc[-2]) and (
+        df["votes"].iloc[-1] == df["votes"].iloc[-2]
+    ):
+        df_uniqueP = pd.concat([df_uniqueP, df.iloc[[-1]]], ignore_index=True)
+        df_uniqueV = pd.concat([df_uniqueV, df.iloc[[-1]]], ignore_index=True)
+
+    df_uniqueP = df_uniqueP.dropna()
+    df_uniqueV = df_uniqueV.dropna()
 
     fig, ax1 = plt.subplots(figsize=(10, 5))
+    smooth_coeff = 10
 
     ax1.plot(
-        df_unique["timestamp"],
-        df_unique["players"],
+        df_uniqueP["timestamp"],
+        df_uniqueP["players"],
         "-",
         label="플레이어 수",
         color=light_blue,
     )
     ax1.fill_between(
-        df_unique["timestamp"],
-        df_unique["players"],
+        df_uniqueP["timestamp"],
+        df_uniqueP["players"],
         color=light_blue,
         alpha=0.2,
     )
-    # ax1.set_ylabel(
-    #     "플레이어 수",
-    #     color=blue,
-    #     labelpad=40,
-    #     rotation=0,
-    #     fontsize=16,
-    #     loc="center",
-    # )
     ax1.tick_params(axis="y", labelcolor=light_blue)
 
     ax2 = ax1.twinx()
+
+    x = np.arange(len(df_uniqueV["timestamp"]))
+    x_new = np.linspace(
+        x.min(), x.max(), (len(df_uniqueV["timestamp"]) - 1) * (smooth_coeff - 1) + 1
+    )
+    pchip = PchipInterpolator(x, df_uniqueV["votes"])
+    y_smooth = pchip(x_new)
+    date_rangeV = []
+    for i in range(len(df_uniqueV["timestamp"]) - 1):
+        date_rangeV.append(
+            pd.Series(
+                pd.date_range(
+                    start=df_uniqueV["timestamp"].iloc[i],
+                    end=df_uniqueV["timestamp"].iloc[i + 1],
+                    periods=smooth_coeff,
+                )[:-1]
+            )
+        )
+    date_rangeV.append(pd.Series([df_uniqueV["timestamp"].iloc[-1]]))
+    date_rangeV = pd.concat(date_rangeV).reset_index(drop=True)
+
+    # ax2.plot(
+    #     df_uniqueV["timestamp"],
+    #     df_uniqueV["votes"],
+    #     label="추천 수",
+    #     color=light_red,
+    # )
     ax2.plot(
-        df_unique["timestamp"],
-        df_unique["votes"],
+        date_rangeV,
+        y_smooth,
         label="추천 수",
         color=light_red,
     )
-    # ax2.set_ylabel(
-    #     "추천 수",
-    #     color=red,
-    #     labelpad=30,
-    #     rotation=0,
-    #     fontsize=16,
-    #     loc="center",
-    # )
     ax2.tick_params(axis="y", labelcolor=light_red)
 
     fig.legend(loc="upper left", bbox_to_anchor=(0.13, 0.88))
@@ -310,5 +329,4 @@ def get_player():
 
 
 if __name__ == "__main__":
-    # hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {"period":7} }')
-    print(get_player())
+    hanwol('{ "fn_id": 1, "q": false, "text": null, "var": {"period":1} }')
