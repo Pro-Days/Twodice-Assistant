@@ -144,7 +144,7 @@ def update_data():
     schedule.every().hour.at(":50").do(update_5m)
     schedule.every().hour.at(":55").do(update_5m)
 
-    schedule.every().day.at("23:30").do(update_1d)
+    schedule.every().day.at("00:00").do(update_1d)
 
     threading.Thread(target=timer, daemon=True).start()
 
