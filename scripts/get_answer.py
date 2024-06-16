@@ -137,6 +137,10 @@ qna = [
         '{ "fn_id": 4, "text": "", "var": {"name":"pro_days", "slot":2} }',
     ],
     [
+        "2일 서버정보",
+        '{ "fn_id": 1, "text": null, "var": {"period":2} }',
+    ],
+    [
         "서버 정보",
         '{ "fn_id": 1, "text": null, "var": {} }',
     ],
