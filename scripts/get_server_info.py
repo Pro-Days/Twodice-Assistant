@@ -239,7 +239,7 @@ def get_vote():
         driver.quit()
 
     except Exception as e:
-        print("vote error1 -------------------")
+        # print("vote error1 -------------------")
         # print(traceback.format_exc())
         if driver:
             try:
@@ -269,7 +269,7 @@ def get_vote():
             driver.quit()
 
         except Exception as e:
-            print("vote error2 -------------------")
+            # print("vote error2 -------------------")
             # print(traceback.format_exc())
 
             if driver:
@@ -291,7 +291,7 @@ def get_player():
         player = status.players.online
 
     except Exception as e:
-        print("player error1 -------------------")
+        # print("player error1 -------------------")
         # print(traceback.format_exc())
         try:
             url = "https://api.mcsrvstat.us/3/" + server_ip
@@ -302,7 +302,7 @@ def get_player():
             )
 
         except Exception as e:
-            print("player error2 -------------------")
+            # print("player error2 -------------------")
             print(traceback.format_exc())
             player = None
 
