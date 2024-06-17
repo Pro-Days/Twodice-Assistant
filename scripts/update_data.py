@@ -8,87 +8,97 @@ import schedule
 import datetime
 import threading
 from pytz import timezone
-import get_server_info as gsi
-import register_player as rp
 import get_rank_info as gri
+import register_player as rp
+import get_server_info as gsi
 import get_character_info as gci
 
 def update_5m():
-    """서버 데이터 업데이트"""
-    info = gsi.get_current_server_info()
+    try:
+        """서버 데이터 업데이트"""
+        info = gsi.get_current_server_info()
 
-    current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M")
-    with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
-        file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
+        current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M")
+        with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
+            file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
+
+    except:
+        print("서버 데이터 업데이트 실패")
 
 
 def update_1d():
-    # 100명 랭킹 업데이트 -> 100초 = 1분 40초
-    rankdata = gri.get_current_rank_data()
-    for i in rankdata:
-        rp.register_player(rankdata[i]["name"])
+    for loopcount in range(2):
+        try:
+            # 100명 랭킹 업데이트 -> 100초 = 1분 40초
+            rankdata = gri.get_current_rank_data()
+            for i in rankdata:
+                rp.register_player(rankdata[i]["name"])
 
-    # 1초마다 1명의 name을 업데이트 -> 1000명이면 1000초 = 16분 40초
-    with open(misc.convert_path("data\\uuids.json"), "r") as file:
-        data = json.load(file)
+            # 1초마다 1명의 name을 업데이트 -> 1000명이면 1000초 = 16분 40초
+            with open(misc.convert_path("data\\uuids.json"), "r") as file:
+                data = json.load(file)
 
-    keys_list = list(data.keys())
+            keys_list = list(data.keys())
 
-    for key in keys_list:
-        while True:
-            response = requests.get(
-                f"https://sessionserver.mojang.com/session/minecraft/profile/{key}"
-            )
+            for key in keys_list:
+                while True:
+                    response = requests.get(
+                        f"https://sessionserver.mojang.com/session/minecraft/profile/{key}"
+                    )
 
-            if response.status_code == 200:
-                break
-            else:
+                    if response.status_code == 200:
+                        break
+                    else:
+                        time.sleep(1)
+
+                name = response.json()["name"]
+                data[key] = name
+
+                with open(misc.convert_path("data\\uuids.json"), "w") as file:
+                    json.dump(data, file, ensure_ascii=False, indent=4)
                 time.sleep(1)
 
-        name = response.json()["name"]
-        data[key] = name
+            ## 플레이어, 랭킹 업데이트
+            current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d")
 
-        with open(misc.convert_path("data\\uuids.json"), "w") as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
-        time.sleep(1)
+            # 랭킹 업데이트
+            data = gri.get_current_rank_data()
 
-    ## 플레이어, 랭킹 업데이트
-    current_time = datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d")
+            rankdata = current_time
+            for i in data:
+                rankdata += f",{misc.get_uuid(data[i]["name"])}-{data[i]["level"]}-{misc.convert_job(data[i]["job"])}"
+            rankdata += "\n"
 
-    # 랭킹 업데이트
-    data = gri.get_current_rank_data()
+            with open(misc.convert_path("data\\rankdata.csv"), "a") as file:
+                file.write(rankdata)
 
-    rankdata = current_time
-    for i in data:
-        rankdata += f",{misc.get_uuid(data[i]["name"])}-{data[i]["level"]}-{misc.convert_job(data[i]["job"])}"
-    rankdata += "\n"
+            # 플레이어 업데이트
+            with open(misc.convert_path("data\\playerdata.csv"), "a") as file:
+                file.write(current_time + "," * len(rp.registered_player_list()) * 3 + "\n")
 
-    with open(misc.convert_path("data\\rankdata.csv"), "a") as file:
-        file.write(rankdata)
+            players = rp.registered_player_list()
+            with open(misc.convert_path("data\\playerdata.csv"), "r") as f:
+                reader = csv.reader(f)
+                playerdata = list(reader)
+                
+            for player in players:
+                data = gci.get_current_character_data(player)
+                uuid = misc.get_uuid(player)
 
-    # 플레이어 업데이트
-    with open(misc.convert_path("data\\playerdata.csv"), "a") as file:
-        file.write(current_time + "," * len(rp.registered_player_list()) * 3 + "\n")
+                for i in data:
+                    name = f"{uuid}-{i}"
 
-    players = rp.registered_player_list()
-    for player in players:
-        data = gci.get_current_character_data(player)
-        uuid = misc.get_uuid(player)
-
-        with open(misc.convert_path("data\\playerdata.csv"), "r") as f:
-            reader = csv.reader(f)
-            playerdata = list(reader)
-
-        for i in data:
-            name = f"{uuid}-{i}"
-
-            for j in range(1, len(playerdata[0])):
-                if playerdata[0][j] == name:
-                    playerdata[-1][j] = f"{data[i]["level"]}-{misc.convert_job(data[i]["job"])}"
+                    for j in range(1, len(playerdata[0])):
+                        if playerdata[0][j] == name:
+                            playerdata[-1][j] = f"{data[i]["level"]}-{misc.convert_job(data[i]["job"])}"
 
             with open(misc.convert_path("data\\playerdata.csv"), "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerows(playerdata)
+            
+            break
+        except:
+            print("데이터 업데이트 실패" + str(loopcount))
 
 
 def timer():
@@ -144,7 +154,7 @@ def update_data():
     schedule.every().hour.at(":50").do(update_5m)
     schedule.every().hour.at(":55").do(update_5m)
 
-    schedule.every().day.at("00:00").do(update_1d)
+    schedule.every().day.at("23:00").do(update_1d)
 
     threading.Thread(target=timer, daemon=True).start()
 
