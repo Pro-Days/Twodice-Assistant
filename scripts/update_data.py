@@ -22,6 +22,7 @@ def update_5m():
         with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
             file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
 
+        print(current_time + "(s)")
     except:
         print("서버 데이터 업데이트 실패")
 
@@ -96,6 +97,7 @@ def update_1d():
                 writer = csv.writer(f)
                 writer.writerows(playerdata)
             
+            print(current_time + "(u)")
             break
         except:
             print("데이터 업데이트 실패" + str(loopcount))
