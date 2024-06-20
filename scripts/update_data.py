@@ -110,7 +110,7 @@ def timer():
         except Exception as e:
             print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer-e: {e}")
         # time.sleep(1)
-        current_time = datetime.now()
+        current_time = datetime.datetime.now()
         if current_time.minute % 5 == 0:
             print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer")
             time.sleep(60)
