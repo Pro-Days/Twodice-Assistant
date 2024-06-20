@@ -105,8 +105,17 @@ def update_1d():
 
 def timer():
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer-e: {e}")
+        # time.sleep(1)
+        current_time = datetime.now()
+        if current_time.minute % 5 == 0:
+            print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer")
+            time.sleep(60)
+        else:
+            time.sleep(1)
 
 
 def update_data():
