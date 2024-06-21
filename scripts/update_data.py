@@ -3,6 +3,7 @@ import csv
 import time
 import misc
 import json
+import logging
 import requests
 import schedule
 import datetime
@@ -12,6 +13,9 @@ import get_rank_info as gri
 import register_player as rp
 import get_server_info as gsi
 import get_character_info as gci
+
+logging.basicConfig(filename='thread_log.log', level=logging.INFO, 
+                    format='%(asctime)s %(message)s')
 
 def update_5m():
     try:
@@ -108,14 +112,23 @@ def timer():
         try:
             schedule.run_pending()
         except Exception as e:
-            print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer-e: {e}")
-        # time.sleep(1)
-        current_time = datetime.datetime.now()
-        if current_time.minute % 5 == 0:
-            print(f"[{datetime.datetime.now(timezone('Asia/Seoul')).strftime("%d %H:%M")}] Timer")
-            time.sleep(60)
-        else:
-            time.sleep(1)
+            logging.error(f"Exception in timer: {e}")
+        time.sleep(1)
+
+
+def start_thread():
+    global thread
+    thread = threading.Thread(target=timer, daemon=True)
+    thread.start()
+    logging.info("Thread started")
+
+
+def monitor_thread():
+    while True:
+        if not thread.is_alive():
+            logging.warning("Thread stopped, restarting...")
+            start_thread()
+        time.sleep(60)  # 1분마다 확인
 
 
 def update_data():
@@ -167,7 +180,10 @@ def update_data():
 
     schedule.every().day.at("23:00").do(update_1d)
 
-    threading.Thread(target=timer, daemon=True).start()
+    # threading.Thread(target=timer, daemon=True).start()
+    start_thread()
+    monitoring_thread = threading.Thread(target=monitor_thread, daemon=True)
+    monitoring_thread.start()
 
     # update_5m()
     # update_1d()
