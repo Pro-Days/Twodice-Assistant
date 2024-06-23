@@ -26,9 +26,9 @@ def update_5m():
         with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
             file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
 
-        print(current_time + "(s)")
+        logging.info("서버 데이터 업데이트 성공")
     except:
-        print("서버 데이터 업데이트 실패")
+        logging.error("서버 데이터 업데이트 실패")
 
 
 def update_1d():
@@ -100,11 +100,11 @@ def update_1d():
             with open(misc.convert_path("data\\playerdata.csv"), "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerows(playerdata)
-            
-            print(current_time + "(u)")
+
+            logging.info("랭킹 데이터 업데이트 성공" + str(loopcount))
             break
         except:
-            print("데이터 업데이트 실패" + str(loopcount))
+            logging.error("랭킹 데이터 업데이트 실패" + str(loopcount))
 
 
 def timer():
@@ -113,22 +113,7 @@ def timer():
             schedule.run_pending()
         except Exception as e:
             logging.error(f"Exception in timer: {e}")
-        time.sleep(1)
-
-
-def start_thread():
-    global thread
-    thread = threading.Thread(target=timer, daemon=True)
-    thread.start()
-    logging.info("Thread started")
-
-
-def monitor_thread():
-    while True:
-        if not thread.is_alive():
-            logging.warning("Thread stopped, restarting...")
-            start_thread()
-        time.sleep(60)  # 1분마다 확인
+        time.sleep(30)
 
 
 def update_data():
@@ -179,11 +164,12 @@ def update_data():
     schedule.every().hour.at(":55").do(update_5m)
 
     schedule.every().day.at("23:00").do(update_1d)
+    schedule.every().day.at("08:00").do(start_thread)
 
-    # threading.Thread(target=timer, daemon=True).start()
     start_thread()
-    monitoring_thread = threading.Thread(target=monitor_thread, daemon=True)
-    monitoring_thread.start()
+
+def start_thread():
+    threading.Thread(target=timer).start()
 
     # update_5m()
     # update_1d()
