@@ -15,7 +15,7 @@ import get_server_info as gsi
 import get_character_info as gci
 
 logging.basicConfig(filename='thread_log.log', level=logging.INFO, 
-                    format='%(asctime)s %(message)s')
+                    format='%(message)s')
 
 def update_5m():
     try:
@@ -26,9 +26,9 @@ def update_5m():
         with open(misc.convert_path("data\\serverdata.csv"), "a") as file:
             file.write(f"{current_time},{info["player"]},{info["vote"]}\n")
 
-        logging.info("서버 데이터 업데이트 성공")
+        logging.info(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + " | 서버 데이터 업데이트 성공")
     except:
-        logging.error("서버 데이터 업데이트 실패")
+        logging.error(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + " | 서버 데이터 업데이트 실패")
 
 
 def update_1d():
@@ -101,10 +101,10 @@ def update_1d():
                 writer = csv.writer(f)
                 writer.writerows(playerdata)
 
-            logging.info("랭킹 데이터 업데이트 성공" + str(loopcount))
+            logging.info(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + " | 랭킹 데이터 업데이트 성공" + str(loopcount))
             break
         except:
-            logging.error("랭킹 데이터 업데이트 실패" + str(loopcount))
+            logging.error(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + " | 랭킹 데이터 업데이트 실패" + str(loopcount))
 
 
 def timer():
@@ -112,7 +112,7 @@ def timer():
         try:
             schedule.run_pending()
         except Exception as e:
-            logging.error(f"Exception in timer: {e}")
+            logging.error(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + f" | Exception in timer: {e}")
         time.sleep(30)
 
 
@@ -163,8 +163,8 @@ def update_data():
     schedule.every().hour.at(":50").do(update_5m)
     schedule.every().hour.at(":55").do(update_5m)
 
-    schedule.every().day.at("23:00").do(update_1d)
-    schedule.every().day.at("08:00").do(start_thread)
+    schedule.every().day.at("14:00").do(update_1d)  # 14:00 + 9 => 23:00
+    schedule.every().day.at("23:00").do(start_thread)  # 23:00 + 9 => 08:00
 
     start_thread()
 
