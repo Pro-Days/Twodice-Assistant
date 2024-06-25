@@ -61,6 +61,8 @@ def run_discord():
 
 
 if __name__ == "__main__":
+    # run.py에서 while True로 8시마다 쓰레드로 main.py를 처음부터 실행 / 나머지는 8시에 모두 종료
+
     ud.update_data()
     discord_bot = bot.DiscordBot(discord_client)
     threading.Thread(target=run_discord).start()
