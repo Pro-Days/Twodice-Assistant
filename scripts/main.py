@@ -35,7 +35,7 @@ async def on_ready():
             await discord_client.close()
             break
 
-        asyncio.sleep(30)
+        await asyncio.sleep(30)
 
 
 @discord_client.event
@@ -60,6 +60,8 @@ async def on_message(message):
 def run_discord():
     discord_client.run(os.getenv("DISCORD_TOKEN"))
 
+    print("Discord Bot Closed")
+
 
 if __name__ == "__main__":
     # run.py에서 while True로 8시마다 쓰레드로 main.py를 처음부터 실행 / 나머지는 8시에 모두 종료
@@ -74,4 +76,9 @@ if __name__ == "__main__":
             ud.update_data()
             threading.Thread(target=run_discord).start()
 
-        time.sleep(30)
+        if discord_client.is_closed():
+            break
+        # print(discord_client.is_closed())
+        time.sleep(1)
+
+    print("Exit\nVM을 재시작해주세요")
