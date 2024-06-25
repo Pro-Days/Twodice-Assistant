@@ -2,6 +2,7 @@ import os
 import bot
 import time
 import discord
+import asyncio
 import datetime
 import platform
 import threading
@@ -34,7 +35,7 @@ async def on_ready():
             await discord_client.close()
             break
 
-        time.sleep(30)
+        asyncio.sleep(30)
 
 
 @discord_client.event
