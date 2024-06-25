@@ -17,6 +17,7 @@ import get_character_info as gci
 logging.basicConfig(filename='thread_log.log', level=logging.INFO, 
                     format='%(message)s')
 
+
 def update_5m():
     try:
         """서버 데이터 업데이트"""
@@ -113,7 +114,12 @@ def timer():
             schedule.run_pending()
         except Exception as e:
             logging.error(datetime.datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") + f" | Exception in timer: {e}")
-        time.sleep(30)
+
+        current_time = datetime.datetime.now(timezone('Asia/Seoul')).time()
+        if current_time.hour == 8 and current_time.minute == 0:
+            return
+
+        time.sleep(1)
 
 
 def update_data():
@@ -164,11 +170,7 @@ def update_data():
     schedule.every().hour.at(":55").do(update_5m)
 
     schedule.every().day.at("14:00").do(update_1d)  # 14:00 + 9 => 23:00
-    schedule.every().day.at("23:00").do(start_thread)  # 23:00 + 9 => 08:00
 
-    start_thread()
-
-def start_thread():
     threading.Thread(target=timer).start()
 
     # update_5m()

@@ -1,10 +1,14 @@
 import os
 import bot
+import time
 import discord
+import datetime
 import platform
+import threading
 import traceback
 import get_answer as ga
 import update_data as ud
+from pytz import timezone
 
 os_name = platform.system()
 if os_name == "Linux":
@@ -23,6 +27,14 @@ discord_client = discord.Client(intents=discord.Intents.all())
 async def on_ready():
     print(f"'{discord_client.user.name}' 로그인 성공 (ID: {discord_client.user.id})")
     await discord_bot.send_log(log_type=1, var=None)
+
+    while True:
+        current_time = datetime.datetime.now(timezone("Asia/Seoul")).time()
+        if current_time.hour == 8 and current_time.minute == 0:
+            await discord_client.close()
+            break
+
+        time.sleep(30)
 
 
 @discord_client.event
@@ -44,8 +56,19 @@ async def on_message(message):
             )
 
 
+def run_discord():
+    discord_client.run(os.getenv("DISCORD_TOKEN"))
+
+
 if __name__ == "__main__":
     ud.update_data()
     discord_bot = bot.DiscordBot(discord_client)
-    discord_client.run(os.getenv("DISCORD_TOKEN"))
-    print("Exit")
+    threading.Thread(target=run_discord).start()
+
+    while True:
+        current_time = datetime.datetime.now(timezone("Asia/Seoul")).time()
+        if current_time.hour == 8 and current_time.minute == 0:
+            ud.update_data()
+            threading.Thread(target=run_discord).start()
+
+        time.sleep(30)
