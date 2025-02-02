@@ -1,3 +1,6 @@
 /data/
 /note/
 /assets/images/
+.venv/
+scripts/__pycache__/
+scripts/test/
