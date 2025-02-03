@@ -55,7 +55,7 @@ pprint(r.json())
 {
     "name": "랭킹",
     "description": "캐릭터 레벨 랭킹을 보여줍니다.",
-    "options": [{"name": "페이지", "description": "페이지 번호 (1~10)", "type": 4}],
+    "options": [{"name": "페이지", "description": "페이지 번호 (1~10)", "type": 4, "required": False}],
     "type": 1,
 }
 {

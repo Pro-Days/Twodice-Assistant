@@ -1,58 +1,69 @@
 import os
-import csv
-import json
 import misc
+import base64
+import platform
 import requests
 import threading
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
+import register_player
+import data_manager
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
 
 def download_image(url, num, list_name):
     response = requests.get(url)
 
-    if response.status_code == 200:
+    os_name = platform.system()
+    if os_name == "Linux":
+        head_path = misc.convert_path(f"\\tmp\\player_heads\\player{num}.png")
+    else:
         head_path = misc.convert_path(f"assets\\player_heads\\player{num}.png")
 
-        with open(head_path, "wb") as file:
-            file.write(response.content)
-        list_name[num] = head_path
+    with open(head_path, "wb") as file:
+        file.write(response.content)
+    list_name[num] = head_path
 
 
-def hanwol(ans):
-    ans_json = json.loads(ans)
-    if ans_json["fn_id"] == 2:
-        if "page" in ans_json["var"]:
-            page = int(ans_json["var"]["page"])
-        else:
-            page = 1  # 1~3
-        image = get_rank_info(page)
-
-        print(image)
-
-
-def get_current_rank_data():
+def get_current_rank_data() -> dict:
+    """
+    현재 전체 캐릭터 랭킹 데이터 반환
     """
     data = {
-        "1": {"name": "플레이어1", "job": "검호", "level": 100},
-        "2": {"name": "플레이어2", "job": "검호", "level": 100},
-        "3": {"name": "플레이어3", "job": "검호", "level": 100},
-        ...
-        "100": {"name": "플레이어100", "job": "검호", "level": 100},
+        "1": {"name": "ProDays", "job": "검호", "level": "100"},
+        "2": {"name": "neoreow", "job": "검호", "level": "9"},
+        "3": {"name": "Aventurine_0", "job": "검호", "level": "9"},
+        "4": {"name": "ino2423", "job": "검호", "level": "9"},
+        "5": {"name": "ljinsoo", "job": "검호", "level": "9"},
+        "6": {"name": "krosh0127", "job": "검호", "level": "9"},
+        "7": {"name": "heekp", "job": "검호", "level": "9"},
+        "8": {"name": "Seyene", "job": "검호", "level": "9"},
+        "9": {"name": "Route88", "job": "검호", "level": "9"},
+        "10": {"name": "Lemong_0", "job": "검호", "level": "9"},
+        "11": {"name": "_IIN", "job": "검호", "level": "9"},
+        "12": {"name": "ggameee", "job": "검호", "level": "8"},
+        "13": {"name": "YOUKONG", "job": "검호", "level": "8"},
+        "14": {"name": "sungchanmom", "job": "검호", "level": "8"},
+        "15": {"name": "Protect_Choco", "job": "검호", "level": "8"},
+        "16": {"name": "Master_Rakan_", "job": "검호", "level": "8"},
+        "17": {"name": "Moncler02", "job": "검호", "level": "8"},
+        "18": {"name": "tmdwns0818", "job": "검호", "level": "8"},
+        "19": {"name": "roadhyeon03", "job": "검호", "level": "8"},
+        "20": {"name": "aaqq2005y", "job": "검호", "level": "8"},
+        "21": {"name": "spemdnjs", "job": "검호", "level": "8"},
+        "22": {"name": "imsouthkorean", "job": "검호", "level": "7"},
+        "23": {"name": "world_3034", "job": "검호", "level": "7"},
+        "24": {"name": "poro_rany", "job": "검호", "level": "7"},
+        "25": {"name": "Welcome_Pasta", "job": "검호", "level": "7"},
+        "26": {"name": "d_capo", "job": "검호", "level": "7"},
+        "27": {"name": "LGJ20000", "job": "검호", "level": "7"},
+        "28": {"name": "TinySlayers", "job": "검호", "level": "7"},
+        "29": {"name": "ArtBeat", "job": "검호", "level": "7"},
+        "30": {"name": "Kozi0518", "job": "검호", "level": "7"},
     }
-    """
-    with open(misc.convert_path("data\\rank.csv"), "r", encoding="UTF8") as file:
-        lines = file.readlines()
-
-    data = {}
-
-    for line in lines:
-        rank, name, job, level = line.split(",")
-        data[rank] = {
-            "name": name,
-            "job": job,
-            "level": level[:-1],
-        }
 
     return data
 
@@ -70,17 +81,35 @@ def get_rank_info(page):
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
     for i in range(page * 10 - 9, page * 10 + 1):
-        data["Name"].append(current_data[str(i)]["name"])
+        name = current_data[str(i)]["name"]  # 닉네임 변경 반영한 최신 닉네임
+        data["Name"].append(name)
         data["Level"].append(current_data[str(i)]["level"])
         data["Job"].append(current_data[str(i)]["job"])
 
-        prev_rank = get_prev_player_rank(current_data[str(i)]["name"], 1)
+        user_id = misc.get_id(name=name)
+
+        if user_id is None:  # 1. 등록x -> 등록 2. 닉네임 변경 -> 등록
+            register_player.register_player(name)
+            user_id = misc.get_id(name=name)
+
+        prev_rank = data_manager.read_data("TA_DEV-Ranks", "id-date-index", id=user_id, date="2025-01-01")[0][
+            "rank"
+        ]
         if prev_rank is None:
             data["Change"].append(None)
         else:
             data["Change"].append(prev_rank - i)
 
-    avatar_images = [misc.convert_path("assets\\player_heads\\face.png")] * 10
+    avatar_images = [""] * 10
+
+    os_name = platform.system()
+    if os_name == "Linux":
+        head_path = misc.convert_path(f"\\tmp\\player_heads\\player.png")
+    else:
+        head_path = misc.convert_path(f"assets\\player_heads\\player.png")
+
+    if not os.path.exists(os.path.dirname(head_path)):
+        os.makedirs(os.path.dirname(head_path))
 
     # 10개의 스레드 생성
     threads = []
@@ -112,8 +141,8 @@ def get_rank_info(page):
     aqua = (190, 230, 255)
     light_blue = (240, 245, 255)
 
-    image = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(image)
+    rank_info_image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(rank_info_image)
 
     draw.rectangle(
         [
@@ -124,7 +153,10 @@ def get_rank_info(page):
         width=2,
     )
 
-    font = ImageFont.truetype(misc.convert_path("assets\\fonts\\NanumSquareRoundEB.ttf"), 40)
+    if os_name == "Linux":
+        font = ImageFont.truetype("/opt/NanumSquareRoundEB.ttf", 40)
+    else:
+        font = ImageFont.truetype(misc.convert_path("assets\\fonts\\NanumSquareRoundEB.ttf"), 40)
 
     x_offset = -10
     for i, text in enumerate(header_text):
@@ -175,7 +207,7 @@ def get_rank_info(page):
 
         avatar_image = Image.open(avatar_images[i])
         avatar_image = avatar_image.resize((avatar_size, avatar_size))
-        image.paste(avatar_image, (x_offset + 12, y_offset + 12))
+        rank_info_image.paste(avatar_image, (x_offset + 12, y_offset + 12))
         draw.text((x_offset + 124, text_y_offset), row["Name"], fill="black", font=font)
         x_offset += header_widths[1]
 
@@ -322,37 +354,33 @@ def get_rank_info(page):
         width=8,
     )
 
-    os.makedirs(
-        os.path.dirname(misc.convert_path("assets\\images\\rank_info.png")),
-        exist_ok=True,
-    )
-    image.save(misc.convert_path("assets\\images\\rank_info.png"))
+    # 이미지 저장
+    os_name = platform.system()
+    if os_name == "Linux":
+        image_path = misc.convert_path("\\tmp\\rank_info.png")
+    else:
+        image_path = misc.convert_path("assets\\images\\rank_info.png")
 
+    rank_info_image.save(image_path)
+
+    # 플레이어 머리 이미지 삭제
     for i in range(10):
-        if os.path.exists(misc.convert_path(f"assets\\player_heads\\player{i}.png")):
-            os.remove(misc.convert_path(f"assets\\player_heads\\player{i}.png"))
+        if os_name == "Linux":
+            player_head_path = misc.convert_path(f"\\tmp\\player_heads\\player{i}.png")
+        else:
+            player_head_path = misc.convert_path(f"assets\\player_heads\\player{i}.png")
 
-    return misc.convert_path("assets\\images\\rank_info.png")
+        if os.path.exists(player_head_path):
+            os.remove(player_head_path)
 
+    with open(image_path, "rb") as image_file:
+        image_data = base64.b64encode(image_file.read()).decode("utf-8")
 
-def get_prev_player_rank(name, day_before):
-    csv_data = []
-    uuid = misc.get_uuid(name)
-
-    f_path = misc.convert_path("data\\rankdata.csv")
-    with open(f_path, "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            csv_data.append(row)
-
-    if len(csv_data) > day_before:
-        prev_data = csv_data[-day_before - 1]
-        for i in range(1, len(prev_data)):
-            if prev_data[i].split("-")[0] == uuid:
-                return i
-
-    return None
+    return image_data
 
 
 if __name__ == "__main__":
-    hanwol('{ "fn_id": 2, "q": false, "text": null, "var": {"page":1} }')
+    # print(get_rank_info(1))
+    # print(get_current_rank_data())
+    # print(get_prev_player_rank(50, "2025-01-01"))
+    pass

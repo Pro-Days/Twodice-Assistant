@@ -1,17 +1,19 @@
 import json
 import os
 import traceback
-from pprint import pprint
 
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
+
+import get_rank_info as gri
+
 
 PUBLIC_KEY = os.getenv("DISCORD_PUBLIC_KEY")
 
 
 def lambda_handler(event, context):
     try:
-        pprint("start!\nevent: " + event)
+        print(f"start!\nevent: {event}")
 
         body = json.loads(event["body"])
 
@@ -22,13 +24,13 @@ def lambda_handler(event, context):
 
         message = timestamp + event["body"]
 
-        pprint("verify start")
+        print("verify start")
         try:
             verify_key.verify(message.encode(), signature=bytes.fromhex(signature))
         except BadSignatureError:
             return {"statusCode": 401, "body": json.dumps("invalid request signature")}
 
-        pprint("verify complete")
+        print("verify complete")
 
         cmd_type = body["type"]
 
@@ -47,6 +49,11 @@ def command_handler(body):
     command = body["data"]["name"]
 
     if command == "랭킹":
+        print("랭킹 command received")
+        page = body["data"]["options"][0]["value"] if "options" in body["data"] else 1
+        image_data = gri.get_rank_info(page)
+        print("랭킹 image generated")
+
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
@@ -54,63 +61,15 @@ def command_handler(body):
                 {
                     "type": 4,
                     "data": {
-                        "content": "Hello, World.",
+                        "content": "랭킹 정보",
                     },
                 }
             ),
         }
     else:
-        pprint("unhandled command: " + command)
+        print("unhandled command: " + command)
         return {"statusCode": 400, "body": json.dumps("unhandled command")}
 
 
-{
-    "name": "랭킹",
-    "description": "캐릭터 레벨 랭킹을 보여줍니다.",
-    "options": [{"name": "페이지", "description": "페이지 번호 (1~10)", "type": 4}],
-    "type": 1,
-}
-{
-    "name": "검색",
-    "type": 1,
-    "description": "캐릭터의 정보를 보여줍니다.",
-    "options": [
-        {
-            "name": "닉네임",
-            "description": "캐릭터 닉네임",
-            "type": 3,
-            "required": True,
-        },
-        {
-            "name": "슬롯",
-            "description": "캐릭터 슬롯 번호 (1~5)",
-            "type": 4,
-            "required": False,
-        },
-        {
-            "name": "기간",
-            "description": "캐릭터 정보를 조회할 기간 (1~365)",
-            "type": 4,
-            "required": False,
-        },
-    ],
-}
-{
-    "name": "등록",
-    "type": 1,
-    "description": "일일 정보를 저장하는 캐릭터 목록에 캐릭터를 추가합니다. 과거 시점의 캐릭터 정보 검색을 이용할 수 있게됩니다.",
-    "options": [
-        {
-            "name": "닉네임",
-            "description": "캐릭터 닉네임",
-            "type": 3,
-            "required": True,
-        },
-        {
-            "name": "슬롯",
-            "description": "메인 캐릭터 (본캐) 슬롯 번호 (1~5)",
-            "type": 4,
-            "required": False,
-        },
-    ],
-}
+if __name__ == "__main__":
+    pass

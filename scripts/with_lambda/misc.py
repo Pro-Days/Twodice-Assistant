@@ -2,22 +2,16 @@ import os
 import json
 import requests
 import platform
+import data_manager
 
 
 def get_real_name(name):
-    with open(convert_path("data\\uuids.json"), "r") as file:
-        data = json.load(file)
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
 
-    for key in data:
-        if data[key].lower() == name.lower():
-            return data[key]
-
-
-def get_name_from_uuid(uuid):
-    with open(convert_path("data\\uuids.json"), "r") as file:
-        data = json.load(file)
-
-    return data[uuid]
+    if data:
+        return data[0]["name"]
+    else:
+        return None
 
 
 def convert_path(path):
@@ -38,13 +32,50 @@ def get_ip():
     return data["ip"]
 
 
-def get_uuid(name):
-    with open(convert_path("data\\uuids.json"), "r") as file:
-        data = json.load(file)
+def get_uuid(name="", _id=""):
+    if name:
+        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+    elif _id:
+        data = data_manager.read_data("TA_DEV-Users", None, id=_id)
 
-    for key in data:
-        if data[key].lower() == name.lower():
-            return key
+    if data:
+        return data[0]["uuid"]
+    else:
+        return None
+
+
+def get_uuid_from_mc(name):
+    response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{name}")
+
+    if response.status_code == 200:
+        return response.json()["id"]
+    else:
+        return None
+
+
+def get_id(name="", uuid=""):
+    if name:
+        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+    elif uuid:
+        data = data_manager.read_data("TA_DEV-Users", "uuid-index", uuid=uuid)
+
+    if data:
+        return data[0]["id"]
+    else:
+        return None
+
+
+def get_max_id():
+    data = data_manager.scan_data("TA_DEV-Users", "id")
+
+    max_id = max([int(item["id"]) for item in data])
+
+    return max_id
+
+
+def get_main_slot(name):
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+    return data[0]["mainSlot"]
 
 
 def convert_job(job):
