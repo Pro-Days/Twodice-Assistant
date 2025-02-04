@@ -251,7 +251,7 @@ def send_log(log_type, event, msg, image=None):
             "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime("%Y-%m-%d %H:%M:%S"),
             "server": f"{guild_name} ({guild_id})",
             "channel": f"{channel_name} ({channel_id})",
-            "author": f"{member_username} - {member_name} ({member_id})",
+            "author": f"{member_name} - {member_username} ({member_id})",
             "cmd": (
                 f"{body["data"]["name"]}\n{', '.join([f"{option['name']}: {option['value']}" for option in body['data']['options']])}"
                 if "options" in body["data"]
@@ -284,7 +284,7 @@ def send_log(log_type, event, msg, image=None):
             "time": datetime.datetime.now(timezone("Asia/Seoul")).strftime("%Y-%m-%d %H:%M:%S"),
             "server": f"{guild_name} ({guild_id})",
             "channel": f"{channel_name} ({channel_id})",
-            "author": f"{member_username} - {member_name} ({member_id})",
+            "author": f"{member_name} - {member_username} ({member_id})",
             "cmd": (
                 f"{body["data"]["name"]}\n{', '.join([f"{option['name']}: {option['value']}" for option in body['data']['options']])}"
                 if "options" in body["data"]

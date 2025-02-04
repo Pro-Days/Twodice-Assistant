@@ -40,24 +40,11 @@ def command_handler(event):
         print("랭킹 image generated")
 
         if page == 1:
-            msg = [
-                f"한월 서버의 캐릭터 레벨 랭킹을 보여드릴게요.",
-                f"한월 서버의 캐릭터 랭킹을 알려드릴게요.",
-                f"지금 한월 서버의 캐릭터 랭킹은 다음과 같아요.",
-                f"한월 서버의 레벨 순위를 보여드릴게요.",
-                f"지금 한월의 레벨 랭킹을 보여드릴게요.",
-            ]
-
+            msg = "지금 한월 RPG의 캐릭터 랭킹을 보여드릴게요."
         else:
-            msg = [
-                f"한월 서버의 {page}페이지 캐릭터 레벨 랭킹을 보여드릴게요.",
-                f"한월 서버의 {page}페이지 레벨 랭킹을 알려드릴게요.",
-                f"이 이미지는 지금 한월 서버의 {page}페이지 캐릭터 랭킹이에요.",
-                f"아래 이미지는 한월 서버의 {page}페이지 캐릭터 순위에요.",
-                f"지금 한월의 {page}페이지 레벨 랭킹을 보여드릴게요.",
-            ]
+            msg = f"지금 한월 RPG의 캐릭터 랭킹 {page}페이지를 보여드릴게요."
 
-        return sm.send(event, random.choice(msg), image=image_path)
+        return sm.send(event, msg, image=image_path)
     else:
         print("unhandled command: " + cmd)
         return {"statusCode": 400, "body": json.dumps("unhandled command")}
