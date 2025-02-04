@@ -1,8 +1,6 @@
 import json
 import os
 import traceback
-import platform
-import random
 
 import get_rank_info as gri
 import send_msg as sm
