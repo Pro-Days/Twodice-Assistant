@@ -8,17 +8,10 @@ import get_rank_info as gri
 import send_msg as sm
 
 
-os_name = platform.system()
 PUBLIC_KEY = os.getenv("DISCORD_PUBLIC_KEY")
-
-if os_name == "Linux":  # Twodice Assistant
-    LOG_CHANNEL_ID = 1244676938002468939
-    ADMIN_CHANNEL_ID = 1244674283826053241
-    ADMIN_ID = 407775594714103808
-else:  # TA_DEV
-    LOG_CHANNEL_ID = 1248628675134488637
-    ADMIN_CHANNEL_ID = 1248628536311550045
-    ADMIN_ID = 407775594714103808
+LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
+ADMIN_CHANNEL_ID = os.getenv("DISCORD_ADMIN_CHANNEL_ID")
+ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
 
 
 def lambda_handler(event, context):

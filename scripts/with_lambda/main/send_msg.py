@@ -6,15 +6,9 @@ import platform
 import datetime
 from pytz import timezone
 
-os_name = platform.system()
-if os_name == "Linux":
-    LOG_CHANNEL_ID = 1244676938002468939
-    ADMIN_CHANNEL_ID = 1244674283826053241
-    ADMIN_ID = 407775594714103808
-else:
-    LOG_CHANNEL_ID = 1248628675134488637
-    ADMIN_CHANNEL_ID = 1248628536311550045
-    ADMIN_ID = 407775594714103808
+LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
+ADMIN_CHANNEL_ID = os.getenv("DISCORD_ADMIN_CHANNEL_ID")
+ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
 
 
 # def hanwol(self, message, ans_json):
@@ -329,6 +323,8 @@ def send_log(log_type, event, msg, image=None):
     headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}", "Content-Type": "application/json"}
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+    print(f"로그 전송 완료: {response.json()}, {msg}")
 
     # 이미지 전송
     if image:
