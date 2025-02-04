@@ -191,7 +191,8 @@ else:
 
 
 def send(event, msg, image=None, log_type=1):
-    interaction_token = event.get("token")
+    body = json.loads(event["body"])
+    interaction_token = body.get("token")
 
     payload = {"content": msg}
 
