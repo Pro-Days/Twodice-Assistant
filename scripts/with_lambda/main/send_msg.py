@@ -268,11 +268,11 @@ def send_log(log_type, event, msg, image=None):
 
         if log_type == 1:
             title = "투다이스 어시스턴트 명령어 로그"
-            color = "#3498DB"
+            color = 3447003
 
         elif log_type == 2:
             title = "투다이스 어시스턴트 관리자 명령어 로그"
-            color = "#9B59B6"
+            color = 10181046
 
         fields = []
         for key, value in embed_json.items():
@@ -301,7 +301,7 @@ def send_log(log_type, event, msg, image=None):
 
         title = "투다이스 어시스턴트 명령어 에러 로그"
         description = f"<@{ADMIN_ID}>"
-        color = "#ED4245"
+        color = 15548997
 
         fields = []
         for key, value in embed_json.items():
@@ -335,18 +335,18 @@ def send_log(log_type, event, msg, image=None):
         with open(image, "rb") as f:
             file_data = f.read()
 
-        interaction_token = event.get("interaction_token")
-
         payload = {
             "content": "",
         }
+        headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}", "Content-Type": "application/json"}
 
-        url = f"https://discord.com/api/v10/webhooks/{os.getenv("DISCORD_APP_ID")}/{interaction_token}"
+        url = f"https://discord.com/api/v10/channels/{LOG_CHANNEL_ID}/messages"
+
         multipart_data = {
             "payload_json": (None, json.dumps(payload), "application/json"),
             "file": (image, file_data, "application/octet-stream"),
         }
 
-        response = requests.post(url, files=multipart_data)
+        response = requests.post(url, headers=headers, files=multipart_data)
 
     print(f"로그 전송 완료: {response.json()}, {msg}")
