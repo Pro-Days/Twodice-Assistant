@@ -310,10 +310,10 @@ def send_log(log_type, event, msg, image=None):
 
     # 로그 전송
     payload = (
-        {"content": "Content", "embeds": [{"title": title, "color": color, "fields": fields}]}
+        {"content": "", "embeds": [{"title": title, "color": color, "fields": fields}]}
         if log_type != 3
         else {
-            "content": "Content",
+            "content": "",
             "embeds": [{"title": title, "description": description, "color": color, "fields": fields}],
         }
     )
@@ -332,7 +332,7 @@ def send_log(log_type, event, msg, image=None):
             file_data = f.read()
 
         payload = {
-            "content": "Content",
+            "content": "",
         }
         headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
 
