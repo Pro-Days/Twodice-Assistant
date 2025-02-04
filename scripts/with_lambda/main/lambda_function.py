@@ -59,9 +59,10 @@ def command_handler(body):
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps(
                 {
-                    "type": 4,
+                    "type": 5,
                     "data": {
                         "content": "랭킹 정보",
+                        "flags": 64,
                     },
                 }
             ),
