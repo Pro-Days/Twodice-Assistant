@@ -1,6 +1,5 @@
 import os
 import misc
-import base64
 import platform
 import requests
 import threading
@@ -363,20 +362,7 @@ def get_rank_info(page):
 
     rank_info_image.save(image_path)
 
-    # 플레이어 머리 이미지 삭제
-    for i in range(10):
-        if os_name == "Linux":
-            player_head_path = misc.convert_path(f"\\tmp\\player_heads\\player{i}.png")
-        else:
-            player_head_path = misc.convert_path(f"assets\\player_heads\\player{i}.png")
-
-        if os.path.exists(player_head_path):
-            os.remove(player_head_path)
-
-    with open(image_path, "rb") as image_file:
-        image_data = base64.b64encode(image_file.read()).decode("utf-8")
-
-    return image_data
+    return image_path
 
 
 if __name__ == "__main__":

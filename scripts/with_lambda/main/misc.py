@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 import platform
 import data_manager
@@ -30,6 +29,17 @@ def get_ip():
     response = requests.get("https://api64.ipify.org?format=json")
     data = response.json()
     return data["ip"]
+
+
+def get_guild_name(guild_id):
+    url = f"https://discord.com/api/v10/guilds/{guild_id}"
+
+    headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
+
+    response = requests.get(url, headers=headers)
+    data = response.json()
+
+    return data["name"]
 
 
 def get_uuid(name="", _id=""):

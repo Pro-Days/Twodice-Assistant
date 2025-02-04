@@ -1,6 +1,5 @@
 import os
 import requests
-from pprint import pprint
 
 
 url = f"https://discord.com/api/v10/applications/{os.getenv("DISCORD_APP_ID")}/commands"
@@ -48,7 +47,7 @@ json = {}
 headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
 
 r = requests.post(url, headers=headers, json=json)
-pprint(r.json())
+print(r.json())
 
 
 ## cmd list
