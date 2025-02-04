@@ -294,7 +294,6 @@ def send_log(log_type, event, msg, image=None):
         }
 
         title = "투다이스 어시스턴트 명령어 에러 로그"
-        description = f"<@{ADMIN_ID}>"
         color = 15548997
 
         fields = []
@@ -313,8 +312,8 @@ def send_log(log_type, event, msg, image=None):
         {"content": "", "embeds": [{"title": title, "color": color, "fields": fields}]}
         if log_type != 3
         else {
-            "content": "",
-            "embeds": [{"title": title, "description": description, "color": color, "fields": fields}],
+            "content": f"<@{ADMIN_ID}>",
+            "embeds": [{"title": title, "color": color, "fields": fields}],
         }
     )
 
