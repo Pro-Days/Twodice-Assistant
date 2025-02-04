@@ -49,7 +49,9 @@ def lambda_handler(event, context):
                 "body": json.dumps(
                     {
                         "type": 5,
-                        "data": {"content": "잠시 기다려주세요", "flags": 64},
+                        "data": {
+                            "content": "잠시 기다려주세요",
+                        },
                     }
                 ),
             }
