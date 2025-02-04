@@ -278,9 +278,11 @@ def send_log(log_type, event, msg, image=None):
         for key, value in embed_json.items():
             if value != None:
                 fields.append(
-                    name=key,
-                    value=value,
-                    inline=False,
+                    {
+                        "name": key,
+                        "value": value,
+                        "inline": False,
+                    }
                 )
 
     elif log_type == 3:
@@ -305,9 +307,11 @@ def send_log(log_type, event, msg, image=None):
         for key, value in embed_json.items():
             if value != None:
                 fields.append(
-                    name=key,
-                    value=value,
-                    inline=False,
+                    {
+                        "name": key,
+                        "value": value,
+                        "inline": False,
+                    }
                 )
 
     # 로그 전송
