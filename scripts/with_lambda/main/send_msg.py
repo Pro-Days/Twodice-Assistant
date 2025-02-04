@@ -190,7 +190,7 @@ else:
 #         return
 
 
-def send(event, msg, image=None, log_type=1):
+def send(event, msg, image=None, log_type=1, error=None):
     body = json.loads(event["body"])
     interaction_token = body.get("token")
 
@@ -210,7 +210,7 @@ def send(event, msg, image=None, log_type=1):
 
         print(f"메시지 전송 완료: {response.json()}, {msg}")
 
-        send_log(log_type, event, msg, image)
+        send_log(log_type, event, msg if error == None else error, image)
 
         return {
             "statusCode": 200,
@@ -223,6 +223,10 @@ def send(event, msg, image=None, log_type=1):
         headers = {"Content-Type": "application/json"}
 
         response = requests.patch(url, headers=headers, data=json.dumps(payload))
+
+        print(f"메시지 전송 완료: {response.json()}, {msg}")
+
+        send_log(log_type, event, msg if error == None else error)
 
         return {
             "statusCode": 200,
@@ -341,4 +345,4 @@ def send_log(log_type, event, msg, image=None):
 
         response = requests.post(url, files=multipart_data)
 
-    print(f"로그 전송 완료: {response.json()}")
+    print(f"로그 전송 완료: {response.json()}, {msg}")
