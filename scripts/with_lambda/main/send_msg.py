@@ -332,9 +332,9 @@ def send_log(log_type, event, msg, image=None):
             file_data = f.read()
 
         payload = {
-            "content": "",
+            "content": "Content",
         }
-        headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}", "Content-Type": "application/json"}
+        headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
 
         url = f"https://discord.com/api/v10/channels/{LOG_CHANNEL_ID}/messages"
 
