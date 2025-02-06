@@ -31,7 +31,7 @@ def register_player(name, slot):
             {
                 "id": item[0]["id"],
                 "name": name,
-                "mainSlot": item[0]["mainSlot"],
+                "mainSlot": slot,
                 "uuid": uuid,
                 "lower_name": name.lower(),
             },
