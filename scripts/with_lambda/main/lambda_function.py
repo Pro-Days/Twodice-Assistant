@@ -62,6 +62,9 @@ def command_handler(event):
                     page = i["value"]
                     break
 
+        if not (1 <= page <= 10):
+            return sm.send(event, "페이지는 1부터 10까지만 가능합니다.")
+
         image_path = gri.get_rank_info(page)
         print("랭킹 image generated")
 
@@ -95,6 +98,15 @@ def command_handler(event):
         else:
             default = False
 
+        if not (slot in [1, 2, 3, 4, 5]):
+            return sm.send(event, "슬롯은 1부터 5까지만 가능합니다.")
+
+        if not (1 <= period <= 365):
+            return sm.send(event, "기간은 1부터 365까지만 가능합니다.")
+
+        if rp.is_registered(name) is False:
+            return sm.send(event, "등록되지 않은 플레이어입니다. 등록을 먼저 해주세요.")
+
         msg, image_path = gci.get_character_info(name, slot, period, default)
         print("검색 image generated")
 
@@ -113,12 +125,15 @@ def command_handler(event):
                 elif i["name"] == "슬롯":
                     slot = i["value"]
 
+        if not (slot in [1, 2, 3, 4, 5]):
+            return sm.send(event, "슬롯은 1부터 5까지만 가능합니다.")
+
         result = rp.register_player(name, slot)
 
         if result:
             msg = f"{name}님을 등록했습니다."
         else:
-            msg = f"{name}님의 등록에 실패했습니다."
+            msg = f"{name}님의 등록에 실패했습니다. 닉네임을 확인해주세요."
 
         return sm.send(event, msg)
 

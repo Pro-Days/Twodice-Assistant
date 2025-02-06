@@ -49,6 +49,12 @@ def get_registered_players():
     return items
 
 
+def is_registered(name):
+    items = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
+
+    return items is not None
+
+
 if __name__ == "__main__":
     # register_player("asdf123", 1)
     # print(get_registered_players())
