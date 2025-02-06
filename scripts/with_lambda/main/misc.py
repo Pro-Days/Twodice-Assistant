@@ -47,8 +47,11 @@ def get_guild_list():
     return data
 
 
-def get_name(name):
-    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
+def get_name(name="", id=""):
+    if name:
+        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
+    elif id:
+        data = data_manager.read_data("TA_DEV-Users", None, {"id": id})
 
     return data[0]["name"] if data else None
 
@@ -97,7 +100,7 @@ def get_id(name="", uuid=""):
     elif uuid:
         data = data_manager.read_data("TA_DEV-Users", "uuid-index", {"uuid": uuid})
 
-    return data[0]["id"] if data else None
+    return int(data[0]["id"]) if data else None
 
 
 def get_max_id():
@@ -110,7 +113,7 @@ def get_max_id():
 
 def get_main_slot(name):
     data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
-    return data[0]["mainSlot"]
+    return int(data[0]["mainSlot"])
 
 
 def convert_job(job):

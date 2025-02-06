@@ -1,6 +1,7 @@
 data/
 note/
 assets/images/
+assets/player_heads/
 .venv/
 *__pycache__
 scripts/temp/

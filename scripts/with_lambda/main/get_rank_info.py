@@ -27,38 +27,39 @@ def download_image(url, num, list_name):
 def get_current_rank_data() -> dict:
     """
     현재 전체 캐릭터 랭킹 데이터 반환
+    {"name": "ProDays", "job": "검호", "level": "100"}
     """
     data = [
-        {"name": "ProDays", "job": "검호", "level": "100"},
-        {"name": "neoreow", "job": "검호", "level": "9"},
-        {"name": "Aventurine_0", "job": "검호", "level": "9"},
-        {"name": "ino2423", "job": "검호", "level": "9"},
-        {"name": "ljinsoo", "job": "검호", "level": "9"},
-        {"name": "krosh0127", "job": "검호", "level": "9"},
-        {"name": "heekp", "job": "검호", "level": "9"},
-        {"name": "Seyene", "job": "검호", "level": "9"},
-        {"name": "Route88", "job": "검호", "level": "9"},
-        {"name": "Lemong_0", "job": "검호", "level": "9"},
-        {"name": "_IIN", "job": "검호", "level": "9"},
-        {"name": "ggameee", "job": "검호", "level": "8"},
-        {"name": "YOUKONG", "job": "검호", "level": "8"},
-        {"name": "sungchanmom", "job": "검호", "level": "8"},
-        {"name": "Protect_Choco", "job": "검호", "level": "8"},
-        {"name": "Master_Rakan_", "job": "검호", "level": "8"},
-        {"name": "Moncler02", "job": "검호", "level": "8"},
-        {"name": "tmdwns0818", "job": "검호", "level": "8"},
-        {"name": "roadhyeon03", "job": "검호", "level": "8"},
-        {"name": "aaqq2005y", "job": "검호", "level": "8"},
-        {"name": "spemdnjs", "job": "검호", "level": "8"},
-        {"name": "imsouthkorean", "job": "검호", "level": "7"},
-        {"name": "world_3034", "job": "검호", "level": "7"},
-        {"name": "poro_rany", "job": "검호", "level": "7"},
-        {"name": "Welcome_Pasta", "job": "검호", "level": "7"},
-        {"name": "d_capo", "job": "검호", "level": "7"},
-        {"name": "LGJ20000", "job": "검호", "level": "7"},
-        {"name": "TinySlayers", "job": "검호", "level": "7"},
-        {"name": "ArtBeat", "job": "검호", "level": "7"},
-        {"name": "Kozi0518", "job": "검호", "level": "7"},
+        {"level": "195", "job": "검호", "name": "ProDays"},
+        {"level": "193", "job": "검호", "name": "Aventurine_0"},
+        {"level": "185", "job": "매화", "name": "heekp"},
+        {"level": "184", "job": "매화", "name": "krosh0127"},
+        {"level": "182", "job": "살수", "name": "_IIN"},
+        {"level": "180", "job": "살수", "name": "YOUKONG"},
+        {"level": "179", "job": "검호", "name": "ino2423"},
+        {"level": "177", "job": "매화", "name": "Route88"},
+        {"level": "177", "job": "검호", "name": "ljinsoo"},
+        {"level": "176", "job": "살수", "name": "ggameee"},
+        {"level": "175", "job": "살수", "name": "Lemong_0"},
+        {"level": "175", "job": "매화", "name": "Seyene"},
+        {"level": "175", "job": "도제", "name": "sungchanmom"},
+        {"level": "173", "job": "술사", "name": "tmdwns0818"},
+        {"level": "171", "job": "도사", "name": "poro_rany"},
+        {"level": "170", "job": "도제", "name": "Master_Rakan_"},
+        {"level": "169", "job": "도제", "name": "Protect_Choco"},
+        {"level": "165", "job": "빙궁", "name": "LGJ20000"},
+        {"level": "163", "job": "도사", "name": "imsouthkorean"},
+        {"level": "161", "job": "귀궁", "name": "Kozi0518"},
+        {"level": "159", "job": "술사", "name": "roadhyeon03"},
+        {"level": "158", "job": "술사", "name": "aaqq2005y"},
+        {"level": "158", "job": "술사", "name": "spemdnjs"},
+        {"level": "158", "job": "도제", "name": "Moncler02"},
+        {"level": "157", "job": "도사", "name": "Welcome_Pasta"},
+        {"level": "156", "job": "도사", "name": "world_3034"},
+        {"level": "155", "job": "빙궁", "name": "ArtBeat"},
+        {"level": "147", "job": "빙궁", "name": "TinySlayers"},
+        {"level": "145", "job": "귀궁", "name": "neoreow"},
+        {"level": "140", "job": "빙궁", "name": "d_capo"},
     ]
 
     return data
@@ -89,7 +90,7 @@ def get_rank_info(page):
             user_id = misc.get_id(name=name)
 
         prev_rank = data_manager.read_data(
-            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": "2025-01-01"}
+            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": "2025-01-31"}
         )[0]["rank"]
 
         if prev_rank is None:

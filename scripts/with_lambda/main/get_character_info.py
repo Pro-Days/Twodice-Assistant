@@ -3,6 +3,7 @@ import csv
 import json
 import misc
 import random
+import datetime
 import platform
 import numpy as np
 import pandas as pd
@@ -11,7 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.font_manager as fm
-from scipy.interpolate import PchipInterpolator
+import matplotlib.ticker as ticker  # Add this import at the top with other matplotlib imports
 
 import get_rank_info as gri
 import register_player as rp
@@ -30,131 +31,27 @@ matplotlib.use("Agg")
 
 
 def get_current_character_data(name):
-    data = {
-        "1": {"job": "검호", "level": "100"},
-        "2": {"job": "검호", "level": "99"},
-        "3": {"job": "검호", "level": "99"},
-        "4": {"job": "검호", "level": "99"},
-        "5": {"job": "검호", "level": "99"},
-    }
+    data = [
+        {"job": "검호", "level": "195"},
+        {"job": "검호", "level": "195"},
+        {"job": "검호", "level": "195"},
+        {"job": "검호", "level": "195"},
+        {"job": "검호", "level": "195"},
+    ]
 
     return data
 
 
-def get_character_info(name, slot=1, period=7, default=True):
-    def pchip_slopes(x, y):
-        """
-        (x, y)가 주어졌을 때, 각 x[i]에서의 접선 기울기 m[i]를
-        Fritsch-Carlson 방법에 따라 계산하여 반환합니다.
-        """
-        n = len(x)
-        m = np.zeros(n)
-
-        # 1) h, delta 계산
-        h = np.diff(x)  # 길이 n-1
-        delta = np.diff(y) / h  # 길이 n-1
-
-        # 내부 점(1 ~ n-2)에 대한 기울기 계산
-        for i in range(1, n - 1):
-            if delta[i - 1] * delta[i] > 0:  # 부호가 같을 때만 보정
-                w1 = 2 * h[i] + h[i - 1]
-                w2 = h[i] + 2 * h[i - 1]
-                m[i] = (w1 + w2) / (w1 / delta[i - 1] + w2 / delta[i])
-            else:
-                # 만약 delta[i-1]과 delta[i] 부호가 다르거나
-                # 하나라도 0이면 모노토닉 유지 위해 기울기 0
-                m[i] = 0.0
-
-        # 양 끝점 기울기 (여기서는 간단히 1차 근사로 계산)
-        m[0] = delta[0]
-        m[-1] = delta[-1]
-
-        return m
-
-    def pchip_interpolate(x, y, x_new):
-        """
-        x, y 데이터를 PCHIP 방식으로 보간하여,
-        새로 주어진 x_new에서의 보간값을 반환합니다.
-        """
-        # 길이 확인
-        if len(x) != len(y):
-            raise ValueError("x와 y의 길이가 달라요!")
-        if np.any(np.diff(x) <= 0):
-            raise ValueError("x는 오름차순으로 정렬되어 있어야 합니다.")
-
-        # 각 점에서의 기울기 계산
-        m = pchip_slopes(x, y)
-
-        # 보간결과를 담을 배열
-        y_new = np.zeros_like(x_new, dtype=float)
-
-        # 구간별로 x_new를 찾아가며 보간
-        # 각 x_new[i]에 대해 어느 구간에 속하는지를 찾아서
-        # 해당 구간의 3차 Hermite 다항식을 이용해 계산
-        for i, xn in enumerate(x_new):
-            # xn이 어느 구간에 속하는지 찾기
-            if xn <= x[0]:
-                # 범위 밖이면, 여기서는 그냥 가장 왼쪽 값으로 extrapolation
-                y_new[i] = y[0]
-                continue
-            elif xn >= x[-1]:
-                # 범위 밖이면, 여기서는 가장 오른쪽 값으로 extrapolation
-                y_new[i] = y[-1]
-                continue
-            else:
-                # x 사이 구간을 찾아서 보간
-                # 이진 탐색을 써도 되고, 여기서는 간단히 linear search
-                # (대규모 데이터라면 np.searchsorted 등을 쓰는 것이 낫습니다)
-                idx = np.searchsorted(x, xn) - 1
-
-                # 구간 [x[idx], x[idx+1]]
-                x0, x1 = x[idx], x[idx + 1]
-                y0, y1 = y[idx], y[idx + 1]
-                m0, m1 = m[idx], m[idx + 1]
-                h = x1 - x0
-                t = (xn - x0) / h  # 구간 내에서 0~1로 정규화
-
-                # Hermite basis를 이용한 보간
-                # 참고: PCHIP 형식의 cubic Hermite polynomial
-                # H_i(t) = y0
-                #         + m0*(t)
-                #         + [ 3*(y1-y0)/h^2 - (m1 + 2*m0)/h^1 ] * t^2
-                #         + [ -2*(y1-y0)/h^3 + (m1 + m0)/h^2 ] * t^3
-                # (아래는 좀 더 일반화한 형태)
-
-                # 여러가지 표기 중 하나를 예시로 들면:
-                # a = y0
-                # b = m0
-                # c = (3*(y1-y0)/h - 2*m0 - m1) / h
-                # d = (m0 + m1 - 2*(y1-y0)/h) / (h**2)
-
-                # 좀 더 단순화해서 적절히 계산
-                a = y0
-                b = m0
-                c = (3 * (y1 - y0) / h - 2 * m0 - m1) / h
-                d = (m0 + m1 - 2 * (y1 - y0) / h) / (h**2)
-
-                val = a + b * (t * h) + c * (t * h) ** 2 + d * (t * h) ** 3
-
-                y_new[i] = val
-
-        return y_new
-
-    all_character_avg = get_all_character_avg()
-    data = get_character_data(name, slot)
+def get_character_info(name, slot=0, period=7, default=True):
+    data, period = get_character_data(name, slot, period)
     name = misc.get_name(name)
 
     if data == None:
         if default:
             return f"{name}님의 캐릭터 정보가 없어요. 다시 확인해주세요.", None
-        return f"{name}님의 {slot}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
+        return f"{name}님의 {slot+1}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
 
-    # 기간 설정
-    period = min(len(data["date"]), period)
-    for i in data:
-        data[i] = data[i][-period:]
-    for i in all_character_avg:
-        all_character_avg[i] = all_character_avg[i][-period:]
+    all_character_avg = get_all_character_avg(period)
 
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"])
@@ -175,11 +72,11 @@ def get_character_info(name, slot=1, period=7, default=True):
 
     if display_avg:
         labels = [
-            (f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"),
+            (f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot+1}번 캐릭터 레벨"),
             "등록된 전체 캐릭터의 평균 레벨",
         ]
     else:
-        labels = [f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"]
+        labels = [f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot+1}번 캐릭터 레벨"]
 
     if period == 1:
         plt.plot("date", "level", data=df, color="C0", marker="o", label=labels[0])
@@ -200,12 +97,12 @@ def get_character_info(name, slot=1, period=7, default=True):
         # 보간 실행
         y_smooth = pchip_interpolate(x, y, x_new)
 
-        plt.plot(df["date"], df["level"], color="C0", marker="o", label=labels[0])
+        plt.plot(df["date"], df["level"], color="C0", marker="o", label=labels[0], linestyle="")
         plt.plot(
             df["date"][0] + pd.to_timedelta(x_new, unit="D"),
             y_smooth,
             color="C0",
-            marker="-",
+            # marker="o",  # marker="-",
         )
 
         if display_avg:
@@ -218,11 +115,11 @@ def get_character_info(name, slot=1, period=7, default=True):
             # pchip_avg = PchipInterpolator(x_avg, df_avg["level"])
             # y_smooth_avg = pchip_avg(x_new_avg)
 
-            x_avg = np.arange(len(df["date"]))
-            y_avg = df["level"].values
+            x_avg = np.arange(len(df_avg["date"]))
+            y_avg = df_avg["level"].values
 
             x_new_avg = np.linspace(
-                x_avg.min(), x_avg.max(), len(df["date"]) * smooth_coeff - smooth_coeff + 1
+                x_avg.min(), x_avg.max(), len(df_avg["date"]) * smooth_coeff - smooth_coeff + 1
             )
 
             # 보간 실행
@@ -234,12 +131,13 @@ def get_character_info(name, slot=1, period=7, default=True):
                 color="C2",
                 marker="o",
                 label=labels[1],
+                linestyle="",
             )
             plt.plot(
                 df_avg["date"][0] + pd.to_timedelta(x_new_avg, unit="D"),
                 y_smooth_avg,
                 color="C2",
-                marker="-",
+                # marker="o",  # marker="-",
             )
 
     if y_min == y_max:
@@ -248,13 +146,11 @@ def get_character_info(name, slot=1, period=7, default=True):
         plt.ylim(y_min - 0.1 * y_range, y_max + 0.3 * y_range)
 
     for i in range(len(df) - 1):
-        colors = ["#A0DEFF", "#FED0E9", "#ffa0a0", "#DFCCFB", "#FFCF96", "#97E7E1", "#CAF4FF", "#DCBFFF"]
-        color = colors[df["job"][i]]
         plt.fill_between(
             df["date"][0]
             + pd.to_timedelta(x_new[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1], unit="D"),
             y_smooth[i * smooth_coeff : i * smooth_coeff + smooth_coeff + 1],
-            color=color,
+            color="#A0DEFF",
             alpha=1,
         )
         # df["date"][0] + pd.to_timedelta(x_new, unit="D"), y_smooth
@@ -266,17 +162,49 @@ def get_character_info(name, slot=1, period=7, default=True):
     date_format = mdates.DateFormatter("%m월 %d일")
     ax.xaxis.set_major_formatter(date_format)
     if period != 1:
-        ax.xaxis.set_major_locator(mdates.DayLocator())
+        # 표시할 x축 날짜 직접 계산
+        n_ticks = min(8, len(df))  # 최대 tick 개수
+        tick_interval = max(1, (len(df) - 1) // (n_ticks - 1))  # 간격 계산
+        tick_indices = range(len(df) - 1, -1, -tick_interval)  # 마지막 데이터부터 역순으로
 
-    for i, row in df.iterrows():
-        if i % ((period // 20) + 1) == (period // 20):
+        # 실제 데이터 포인트의 날짜만 선택
+        ticks = [mdates.date2num(df["date"].iloc[i]) for i in tick_indices]
+        ax.xaxis.set_major_locator(ticker.FixedLocator(ticks))
+
+        # x축 범위를 데이터 범위로 제한 (여백 추가)
+        date_range = (df["date"].iloc[-1] - df["date"].iloc[0]).days
+        plt.xlim(
+            df["date"].iloc[0] - pd.Timedelta(days=date_range * 0.02),  # 2% 여백
+            df["date"].iloc[-1] + pd.Timedelta(days=date_range * 0.02),
+        )
+
+        # 레이블 표시 로직 변경 - 날짜 tick과 동일한 간격 사용
+        for i in tick_indices:
             plt.annotate(
-                f'Lv.{row["level"]}',
-                (row["date"], row["level"]),
+                f'Lv.{df["level"].iloc[i]}',
+                (df["date"].iloc[i], df["level"].iloc[i]),
                 textcoords="offset points",
                 xytext=(0, 10),
                 ha="center",
             )
+    else:
+        tick = [
+            mdates.date2num(df["date"].iloc[0] - pd.Timedelta(days=1)),
+            mdates.date2num(df["date"].iloc[0]),
+            mdates.date2num(df["date"].iloc[0] + pd.Timedelta(days=1)),
+        ]
+        ax.xaxis.set_major_locator(ticker.FixedLocator(tick))
+        plt.xlim(
+            df["date"].iloc[0] - pd.Timedelta(days=1.03),
+            df["date"].iloc[0] + pd.Timedelta(days=1.03),
+        )
+        plt.annotate(
+            f'Lv.{df["level"].iloc[0]}',
+            (df["date"].iloc[0], df["level"].iloc[0]),
+            textcoords="offset points",
+            xytext=(0, 10),
+            ha="center",
+        )
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -286,11 +214,12 @@ def get_character_info(name, slot=1, period=7, default=True):
     plt.yticks([])
     plt.legend(loc="upper left")
 
-    image_path = misc.convert_path("assets\\images\\character_info.png")
-    os.makedirs(
-        os.path.dirname(image_path),
-        exist_ok=True,
-    )
+    os_name = platform.system()
+    if os_name == "Linux":
+        image_path = misc.convert_path("\\tmp\\character_info.png")
+    else:
+        image_path = misc.convert_path("assets\\images\\character_info.png")
+
     plt.savefig(image_path, dpi=300, bbox_inches="tight")
     plt.close()
 
@@ -311,43 +240,69 @@ def get_character_info(name, slot=1, period=7, default=True):
             msg = f"지금 {name}님의 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
     else:
         if rank is not None:
-            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
+            msg = f"지금 {name}님의 {slot+1}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
         else:
-            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
+            msg = f"지금 {name}님의 {slot+1}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
 
     return msg, image_path
 
 
-def get_character_data(name, slot):
+def get_character_data(name, slot, period):
     """
     data = {'date': ['2025-01-01'], 'level': [Decimal('97')], 'job': [Decimal('1')]}
     """
 
+    # today = datetime.datetime.now()
+    today = datetime.datetime.strptime("2025-01-31", "%Y-%m-%d").date()  # 임시
+    start_date = today - datetime.timedelta(days=period - 1)
+
+    today = today.strftime("%Y-%m-%d")
+    start_date = start_date.strftime("%Y-%m-%d")
+
     _id = misc.get_id(name)
 
     db_data = dm.read_data(
-        "TA_DEV-DailyData", None, {"id": _id, "date-slot": ["2025-01-01#0", "2025-01-01#4"]}
+        "TA_DEV-DailyData", None, {"id": _id, "date-slot": [f"{start_date}#0", f"{today}#4"]}
     )
 
     if not db_data:
         return None
 
-    data = {"date": [], "level": [], "job": []}
+    data = {"date": [], "level": []}
     for i in db_data:
         date, _slot = i["date-slot"].split("#")
 
         if int(_slot) == slot:
             data["date"].append(date)
             data["level"].append(int(i["level"]))
-            data["job"].append(int(i["job"]))
 
-    return data
+    today_data = get_current_character_data(name)
+
+    for i in range(len(data)):
+        if data["date"][i] == today:
+            data["level"][i] = today_data[slot]["level"]
+
+    return data if len(data["date"]) != 0 else None, len(data["date"])
 
 
-def get_all_character_avg():
+def get_all_character_avg(period):
     data = {"date": [], "level": []}
 
-    db_data = dm.scan_data("TA_DEV-DailyData")
+    # today = datetime.datetime.now()
+    today = datetime.datetime.strptime("2025-01-31", "%Y-%m-%d").date()  # 임시
+    start_date = today - datetime.timedelta(days=period - 1)
+
+    today = today.strftime("%Y-%m-%d")
+    start_date = start_date.strftime("%Y-%m-%d")
+
+    db_data = dm.scan_data(
+        "TA_DEV-DailyData",
+        index="date-slot-level-index",
+        filter_dict={"date-slot": [f"{start_date}#0", f"{today}#4"]},
+    )
+
+    if not db_data:
+        return None
 
     dates = {}
 
@@ -359,21 +314,120 @@ def get_all_character_avg():
 
         dates[date].append(int(i["level"]))
 
-    for date in dates.keys():
+    for date in sorted(dates.keys()):
         data["date"].append(date)
         data["level"].append(sum(dates[date]) / len(dates[date]))
 
     return data
 
 
+def pchip_slopes(x, y):
+    """
+    (x, y)가 주어졌을 때, 각 x[i]에서의 접선 기울기 m[i]를
+    Fritsch-Carlson 방법에 따라 계산하여 반환합니다.
+    """
+    n = len(x)
+    m = np.zeros(n)
+
+    # 1) h, delta 계산
+    h = np.diff(x)  # 길이 n-1
+    delta = np.diff(y) / h  # 길이 n-1
+
+    # 내부 점(1 ~ n-2)에 대한 기울기 계산
+    for i in range(1, n - 1):
+        if delta[i - 1] * delta[i] > 0:  # 부호가 같을 때만 보정
+            w1 = 2 * h[i] + h[i - 1]
+            w2 = h[i] + 2 * h[i - 1]
+            m[i] = (w1 + w2) / (w1 / delta[i - 1] + w2 / delta[i])
+        else:
+            # 만약 delta[i-1]과 delta[i] 부호가 다르거나
+            # 하나라도 0이면 모노토닉 유지 위해 기울기 0
+            m[i] = 0.0
+
+    # 양 끝점 기울기 (여기서는 간단히 1차 근사로 계산)
+    m[0] = delta[0]
+    m[-1] = delta[-1]
+
+    return m
+
+
+def pchip_interpolate(x, y, x_new):
+    """
+    x, y 데이터를 PCHIP 방식으로 보간하여,
+    새로 주어진 x_new에서의 보간값을 반환합니다.
+    """
+    # 길이 확인
+    if len(x) != len(y):
+        raise ValueError("x와 y의 길이가 달라요!")
+    if np.any(np.diff(x) <= 0):
+        raise ValueError("x는 오름차순으로 정렬되어 있어야 합니다.")
+
+    # 각 점에서의 기울기 계산
+    m = pchip_slopes(x, y)
+
+    # 보간결과를 담을 배열
+    y_new = np.zeros_like(x_new, dtype=float)
+
+    # 구간별로 x_new를 찾아가며 보간
+    # 각 x_new[i]에 대해 어느 구간에 속하는지를 찾아서
+    # 해당 구간의 3차 Hermite 다항식을 이용해 계산
+    for i, xn in enumerate(x_new):
+        # xn이 어느 구간에 속하는지 찾기
+        if xn <= x[0]:
+            # 범위 밖이면, 여기서는 그냥 가장 왼쪽 값으로 extrapolation
+            y_new[i] = y[0]
+            continue
+        elif xn >= x[-1]:
+            # 범위 밖이면, 여기서는 가장 오른쪽 값으로 extrapolation
+            y_new[i] = y[-1]
+            continue
+        else:
+            # x 사이 구간을 찾아서 보간
+            # 이진 탐색을 써도 되고, 여기서는 간단히 linear search
+            # (대규모 데이터라면 np.searchsorted 등을 쓰는 것이 낫습니다)
+            idx = np.searchsorted(x, xn) - 1
+
+            # 구간 [x[idx], x[idx+1]]
+            x0, x1 = x[idx], x[idx + 1]
+            y0, y1 = y[idx], y[idx + 1]
+            m0, m1 = m[idx], m[idx + 1]
+            h = x1 - x0
+            t = (xn - x0) / h  # 구간 내에서 0~1로 정규화
+
+            # Hermite basis를 이용한 보간
+            # 참고: PCHIP 형식의 cubic Hermite polynomial
+            # H_i(t) = y0
+            #         + m0*(t)
+            #         + [ 3*(y1-y0)/h^2 - (m1 + 2*m0)/h^1 ] * t^2
+            #         + [ -2*(y1-y0)/h^3 + (m1 + m0)/h^2 ] * t^3
+            # (아래는 좀 더 일반화한 형태)
+
+            # 여러가지 표기 중 하나를 예시로 들면:
+            # a = y0
+            # b = m0
+            # c = (3*(y1-y0)/h - 2*m0 - m1) / h
+            # d = (m0 + m1 - 2*(y1-y0)/h) / (h**2)
+
+            # 좀 더 단순화해서 적절히 계산
+            a = y0
+            b = m0
+            c = (3 * (y1 - y0) / h - 2 * m0 - m1) / h
+            d = (m0 + m1 - 2 * (y1 - y0) / h) / (h**2)
+
+            val = a + b * (t * h) + c * (t * h) ** 2 + d * (t * h) ** 3
+
+            y_new[i] = val
+
+    return y_new
+
+
 if __name__ == "__main__":
-    name = "ProDays"
     # if not rp.is_registered(name):
     #     print("해당 플레이어는 등록되지 않았습니다.")
-    get_character_info(name, 0, 7, True)
+    print(get_character_info("prodays", 1, 10, False))
 
-    # print(get_character_data("ProDays", 1))
+    # print(get_character_data("ProDays", 1, 7))
 
-    # print(get_all_character_avg())
+    # print(get_all_character_avg(7))
 
     pass

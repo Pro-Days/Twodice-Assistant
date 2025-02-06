@@ -39,29 +39,54 @@ def read_data(table_name, index=None, condition_dict=None):
             else:
                 condition = condition & add
 
+    query_params = {"KeyConditionExpression": condition}
+
     if index:
-        response = table.query(IndexName=index, KeyConditionExpression=(condition))
-    else:
-        response = table.query(KeyConditionExpression=(condition))
+        query_params["IndexName"] = index
+
+    response = table.query(**query_params)
 
     items = response.get("Items", [])
 
     return items if items else None
 
 
-def scan_data(table_name, key=None):
+def scan_data(table_name, index=None, key=None, filter_dict=None):
     table = dynamodb.Table(table_name)
 
+    filter_data = None
+    if filter_dict:
+        for _key, value in filter_dict.items():
+            if isinstance(value, list):
+                add = Key(_key).between(value[0], value[1])
+            else:
+                add = Key(_key).eq(value)
+
+            if filter_data is None:
+                filter_data = add
+            else:
+                filter_data = filter_data & add
+
+    scan_params = {}
+
     if key:
-        response = table.scan(ProjectionExpression=key)
-    else:
-        response = table.scan()
+        scan_params["ProjectionExpression"] = key
+
+    if filter_dict:
+        scan_params["FilterExpression"] = filter_data
+
+    if index:
+        scan_params["IndexName"] = index
+
+    response = table.scan(**scan_params)
 
     items = response.get("Items", [])
 
     # 페이지네이션 처리: LastEvaluatedKey가 있으면 계속해서 스캔
     while "LastEvaluatedKey" in response:
-        response = table.scan(ProjectionExpression="id", ExclusiveStartKey=response["LastEvaluatedKey"])
+        scan_params["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+        response = table.scan(**scan_params)
+
         items.extend(response.get("Items", []))
 
     return items if items else None
@@ -74,6 +99,7 @@ def write_data(table_name, item):
 
 
 if __name__ == "__main__":
-    # print(scan_data("TA_DEV-Users", "name"))
-    print(read_data("TA_DEV-DailyData", None, {"id": 1, "date-slot": ["2025-01-01#0", "2025-01-01#4"]}))
+    # print(scan_data("TA_DEV-DailyData"))
+    # print(read_data("TA_DEV-DailyData", None, {"id": 1, "date-slot": ["2025-01-01#0", "2025-01-01#4"]}))
+
     pass
