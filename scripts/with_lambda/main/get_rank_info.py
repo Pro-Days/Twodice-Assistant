@@ -1,5 +1,6 @@
 import os
 import misc
+import datetime
 import platform
 import requests
 import threading
@@ -89,8 +90,13 @@ def get_rank_info(page):
             register_player.register_player(name)
             user_id = misc.get_id(name=name)
 
+        # today = datetime.datetime.now()
+        today = datetime.datetime.strptime("2025-01-31", "%Y-%m-%d").date()  # 임시
+        prev_date = today - datetime.timedelta(days=1)
+        prev_date_str = prev_date.strftime("%Y-%m-%d")
+
         prev_rank = data_manager.read_data(
-            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": "2025-01-31"}
+            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": prev_date_str}
         )[0]["rank"]
 
         if prev_rank is None:
