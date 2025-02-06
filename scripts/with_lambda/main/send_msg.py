@@ -1,10 +1,10 @@
 import os
 import json
-import misc
 import requests
-import platform
 import datetime
 from pytz import timezone
+
+import misc
 
 LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")

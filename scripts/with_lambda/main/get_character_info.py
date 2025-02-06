@@ -1,8 +1,4 @@
-import os
-import csv
-import json
 import misc
-import random
 import datetime
 import platform
 import numpy as np
@@ -11,12 +7,11 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 import matplotlib.font_manager as fm
-import matplotlib.ticker as ticker  # Add this import at the top with other matplotlib imports
 
-import get_rank_info as gri
-import register_player as rp
 import data_manager as dm
+import get_rank_info as gri
 
 plt.style.use("seaborn-v0_8-pastel")
 if platform.system() == "Linux":

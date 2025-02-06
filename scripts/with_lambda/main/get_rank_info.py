@@ -6,8 +6,8 @@ import threading
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
-import register_player
 import data_manager
+import register_player
 
 
 def download_image(url, num, list_name):
