@@ -5,6 +5,7 @@ import traceback
 import misc
 import get_rank_info as gri
 import send_msg as sm
+import register_player as rp
 
 
 PUBLIC_KEY = os.getenv("DISCORD_PUBLIC_KEY")
@@ -29,8 +30,7 @@ def command_handler(event):
     cmd = body["data"]["name"]
 
     if (body["channel_id"] == ADMIN_CHANNEL_ID) and (body["member"]["user"]["id"] == ADMIN_ID):
-        # admin(cmd)
-        pass
+        admin(event, cmd)
 
     elif cmd == "랭킹":
         print("랭킹 command received")
@@ -56,34 +56,19 @@ def admin(event, cmd):
 
         return sm.send(event, f"아이피 주소: {ip}", log_type=2)
 
-    elif cmd == "user_list":
-        pl_list = rp.registered_player_list()
+    elif cmd == "user_count":
+        pl_list = rp.get_registered_players()
 
-        cmd = f"등록된 유저 수: {len(pl_list)}\n등록된 유저 목록\n" + "```" + ", ".join(pl_list) + "```"
-
-        self.send(cmd, message, log_type=4)
-
-        return
+        return sm.send(event, f"등록된 유저 수: {len(pl_list)}", log_type=2)
 
     elif cmd == "server_list":
-        pl_list = rp.registered_player_list()
+        server_list = misc.get_guild_list()
 
-        cmd = (
-            f"서버 수: {str(len(self.discord_client.guilds))}\n서버 목록\n"
+        msg = (
+            f"서버 수: {len(server_list)}\n서버 목록\n"
             + "```"
-            + ", ".join([guild.name for guild in self.discord_client.guilds])
+            + ", ".join([server["name"] for server in server_list])
             + "```"
         )
 
-        self.send(cmd, message, log_type=4)
-
-        return
-
-    elif cmd == "cmd":
-        self.send(
-            "1. stop\n2. ip\n3. user_list\n4. server_list\n5. cmd",
-            message,
-            log_type=4,
-        )
-
-        return
+        return sm.send(event, msg, log_type=2)

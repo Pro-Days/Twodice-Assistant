@@ -21,7 +21,7 @@ else:
 dynamodb = session.resource("dynamodb")
 
 
-def read_data(table_name, index, **kwargs):
+def read_data(table_name, index=None, **kwargs):
     table = dynamodb.Table(table_name)
 
     # value가 범위인 경우 추가 (예: level)
@@ -37,15 +37,19 @@ def read_data(table_name, index, **kwargs):
         response = table.query(IndexName=index, KeyConditionExpression=(condition))
     else:
         response = table.query(KeyConditionExpression=(condition))
+
     items = response.get("Items", [])
 
     return items if items else None
 
 
-def scan_data(table_name, key):
+def scan_data(table_name, key=None):
     table = dynamodb.Table(table_name)
 
-    response = table.scan(ProjectionExpression=key)
+    if key:
+        response = table.scan(ProjectionExpression=key)
+    else:
+        response = table.scan()
 
     items = response.get("Items", [])
 
@@ -61,3 +65,8 @@ def write_data(table_name, item):
     table = dynamodb.Table(table_name)
 
     table.put_item(Item=item)
+
+
+if __name__ == "__main__":
+    # print(scan_data("TA_DEV-Users", "name"))
+    pass

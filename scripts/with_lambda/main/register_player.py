@@ -33,6 +33,15 @@ def register_player(name, slot=1):
         )
 
 
+def get_registered_players():
+    items = data_manager.scan_data("TA_DEV-Users")
+
+    for item in items:
+        del item["lower_name"]
+
+    return items
+
+
 if __name__ == "__main__":
-    # print(is_registered("prodays"))
+    # print(get_registered_players())
     pass

@@ -36,6 +36,17 @@ def get_guild_name(guild_id):
     return data["name"]
 
 
+def get_guild_list():
+    url = "https://discord.com/api/v10/users/@me/guilds"
+
+    headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
+
+    response = requests.get(url, headers=headers)
+    data = response.json()
+
+    return data
+
+
 def get_name(name):
     data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
 
@@ -126,37 +137,6 @@ def convert_job(job):
 
 
 if __name__ == "__main__":
-    # print(
-    #     get_profile_from_mc(
-    #         names=[
-    #             "prodays",
-    #             "welcomepasta",
-    #             "welcomepasta1",
-    #             "welcomepasta2",
-    #             "welcomepasta3",
-    #             "welcomepasta4",
-    #             "welcomepasta5",
-    #             "welcomepasta6",
-    #             "welcomepasta7",
-    #             "welcomepasta8",
-    #             "welcomepasta9",
-    #             "welcomepasta10",
-    #             "welcomepasta11",
-    #             "welcomepasta12",
-    #             "welcomepasta13",
-    #             "welcomepasta14",
-    #             "welcomepasta15",
-    #             "welcomepasta16",
-    #             "welcomepasta17",
-    #             "welcomepasta18",
-    #             "welcomepasta19",
-    #             "welcomepasta20",
-    #             "welcomepasta21",
-    #             "welcomepasta22",
-    #             "welcomepasta23",
-    #             "welcomepasta24",
-    #         ]
-    #     )
-    # )
+    # print(get_guild_list())
 
     pass

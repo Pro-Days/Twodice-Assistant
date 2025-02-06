@@ -16,6 +16,6 @@ print(r.json())
 
 {"name": "stop", "description": "종료", "type": 1}
 {"name": "ip", "description": "ip 주소", "type": 1}
-{"name": "user_list", "description": "유저 목록", "type": 1}
+{"name": "user_count", "description": "유저 수", "type": 1}
 {"name": "server_list", "description": "서버 목록", "type": 1}
 {"name": "cmd", "description": "명령어 목록", "type": 1}
