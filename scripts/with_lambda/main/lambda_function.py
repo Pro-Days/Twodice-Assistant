@@ -71,6 +71,7 @@ def command_handler(event):
             msg = f"지금 한월 RPG의 캐릭터 랭킹 {page}페이지를 보여드릴게요."
 
         return sm.send(event, msg, image=image_path)
+
     elif cmd == "검색":
         print("검색 command received")
 
@@ -98,6 +99,29 @@ def command_handler(event):
         print("검색 image generated")
 
         return sm.send(event, msg, image=image_path)
+
+    elif cmd == "등록":
+        print("등록 command received")
+
+        slot = 1
+        if "options" in body["data"]:
+            for i in body["data"]["options"]:
+
+                if i["name"] == "닉네임":
+                    name = i["value"]
+
+                elif i["name"] == "슬롯":
+                    slot = i["value"]
+
+        result = rp.register_player(name, slot)
+
+        if result:
+            msg = f"{name}님을 등록했습니다."
+        else:
+            msg = f"{name}님의 등록에 실패했습니다."
+
+        return sm.send(event, msg)
+
     else:
         print("unhandled command: " + cmd)
         sm.send(event, "오류가 발생했습니다.", log_type=3, error=f"unhandled command: {cmd}")

@@ -105,7 +105,7 @@ def get_id(name="", uuid=""):
 
 
 def get_max_id():
-    data = data_manager.scan_data("TA_DEV-Users", "id")
+    data = data_manager.scan_data("TA_DEV-Users", key="id")
 
     max_id = max([int(item["id"]) for item in data])
 
@@ -142,5 +142,7 @@ def convert_job(job):
 
 if __name__ == "__main__":
     # print(get_guild_list())
+    # print(get_max_id())
+    # print(get_profile_from_mc(name="aasdwdddddwdwdwd"))
 
     pass

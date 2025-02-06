@@ -2,10 +2,15 @@ import misc
 import data_manager
 
 
-def register_player(name, slot=1):
+def register_player(name, slot):
 
-    while uuid := misc.get_profile_from_mc(name) is None:
-        pass
+    profile = misc.get_profile_from_mc(name)
+
+    if profile is None:
+        return False
+
+    uuid = profile["id"]
+    name = profile["name"]
 
     item = data_manager.read_data("TA_DEV-Users", "uuid-index", {"uuid": uuid})
 
@@ -32,6 +37,8 @@ def register_player(name, slot=1):
             },
         )
 
+    return True
+
 
 def get_registered_players():
     items = data_manager.scan_data("TA_DEV-Users")
@@ -43,5 +50,6 @@ def get_registered_players():
 
 
 if __name__ == "__main__":
+    # register_player("asdf123", 1)
     # print(get_registered_players())
     pass
