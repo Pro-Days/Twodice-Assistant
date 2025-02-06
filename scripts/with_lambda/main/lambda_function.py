@@ -8,9 +8,6 @@ import send_msg as sm
 import register_player as rp
 
 
-PUBLIC_KEY = os.getenv("DISCORD_PUBLIC_KEY")
-LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
-ADMIN_CHANNEL_ID = os.getenv("DISCORD_ADMIN_CHANNEL_ID")
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
 
 

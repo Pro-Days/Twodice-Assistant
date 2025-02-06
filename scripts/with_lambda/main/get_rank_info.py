@@ -9,9 +9,6 @@ from PIL import Image, ImageDraw, ImageFont
 import register_player
 import data_manager
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-
 
 def download_image(url, num, list_name):
     response = requests.get(url)

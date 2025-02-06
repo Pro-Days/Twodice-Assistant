@@ -7,7 +7,6 @@ import datetime
 from pytz import timezone
 
 LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
-ADMIN_CHANNEL_ID = os.getenv("DISCORD_ADMIN_CHANNEL_ID")
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
 
 
