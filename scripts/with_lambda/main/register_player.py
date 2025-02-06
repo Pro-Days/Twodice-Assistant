@@ -7,7 +7,7 @@ def register_player(name, slot=1):
     while uuid := misc.get_profile_from_mc(name) is None:
         pass
 
-    item = data_manager.read_data("TA_DEV-Users", "uuid-index", uuid=uuid)
+    item = data_manager.read_data("TA_DEV-Users", "uuid-index", {"uuid": uuid})
 
     if item is None:  # 등록되지 않은 플레이어
         data_manager.write_data(

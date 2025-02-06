@@ -28,38 +28,38 @@ def get_current_rank_data() -> dict:
     """
     현재 전체 캐릭터 랭킹 데이터 반환
     """
-    data = {
-        "1": {"name": "ProDays", "job": "검호", "level": "100"},
-        "2": {"name": "neoreow", "job": "검호", "level": "9"},
-        "3": {"name": "Aventurine_0", "job": "검호", "level": "9"},
-        "4": {"name": "ino2423", "job": "검호", "level": "9"},
-        "5": {"name": "ljinsoo", "job": "검호", "level": "9"},
-        "6": {"name": "krosh0127", "job": "검호", "level": "9"},
-        "7": {"name": "heekp", "job": "검호", "level": "9"},
-        "8": {"name": "Seyene", "job": "검호", "level": "9"},
-        "9": {"name": "Route88", "job": "검호", "level": "9"},
-        "10": {"name": "Lemong_0", "job": "검호", "level": "9"},
-        "11": {"name": "_IIN", "job": "검호", "level": "9"},
-        "12": {"name": "ggameee", "job": "검호", "level": "8"},
-        "13": {"name": "YOUKONG", "job": "검호", "level": "8"},
-        "14": {"name": "sungchanmom", "job": "검호", "level": "8"},
-        "15": {"name": "Protect_Choco", "job": "검호", "level": "8"},
-        "16": {"name": "Master_Rakan_", "job": "검호", "level": "8"},
-        "17": {"name": "Moncler02", "job": "검호", "level": "8"},
-        "18": {"name": "tmdwns0818", "job": "검호", "level": "8"},
-        "19": {"name": "roadhyeon03", "job": "검호", "level": "8"},
-        "20": {"name": "aaqq2005y", "job": "검호", "level": "8"},
-        "21": {"name": "spemdnjs", "job": "검호", "level": "8"},
-        "22": {"name": "imsouthkorean", "job": "검호", "level": "7"},
-        "23": {"name": "world_3034", "job": "검호", "level": "7"},
-        "24": {"name": "poro_rany", "job": "검호", "level": "7"},
-        "25": {"name": "Welcome_Pasta", "job": "검호", "level": "7"},
-        "26": {"name": "d_capo", "job": "검호", "level": "7"},
-        "27": {"name": "LGJ20000", "job": "검호", "level": "7"},
-        "28": {"name": "TinySlayers", "job": "검호", "level": "7"},
-        "29": {"name": "ArtBeat", "job": "검호", "level": "7"},
-        "30": {"name": "Kozi0518", "job": "검호", "level": "7"},
-    }
+    data = [
+        {"name": "ProDays", "job": "검호", "level": "100"},
+        {"name": "neoreow", "job": "검호", "level": "9"},
+        {"name": "Aventurine_0", "job": "검호", "level": "9"},
+        {"name": "ino2423", "job": "검호", "level": "9"},
+        {"name": "ljinsoo", "job": "검호", "level": "9"},
+        {"name": "krosh0127", "job": "검호", "level": "9"},
+        {"name": "heekp", "job": "검호", "level": "9"},
+        {"name": "Seyene", "job": "검호", "level": "9"},
+        {"name": "Route88", "job": "검호", "level": "9"},
+        {"name": "Lemong_0", "job": "검호", "level": "9"},
+        {"name": "_IIN", "job": "검호", "level": "9"},
+        {"name": "ggameee", "job": "검호", "level": "8"},
+        {"name": "YOUKONG", "job": "검호", "level": "8"},
+        {"name": "sungchanmom", "job": "검호", "level": "8"},
+        {"name": "Protect_Choco", "job": "검호", "level": "8"},
+        {"name": "Master_Rakan_", "job": "검호", "level": "8"},
+        {"name": "Moncler02", "job": "검호", "level": "8"},
+        {"name": "tmdwns0818", "job": "검호", "level": "8"},
+        {"name": "roadhyeon03", "job": "검호", "level": "8"},
+        {"name": "aaqq2005y", "job": "검호", "level": "8"},
+        {"name": "spemdnjs", "job": "검호", "level": "8"},
+        {"name": "imsouthkorean", "job": "검호", "level": "7"},
+        {"name": "world_3034", "job": "검호", "level": "7"},
+        {"name": "poro_rany", "job": "검호", "level": "7"},
+        {"name": "Welcome_Pasta", "job": "검호", "level": "7"},
+        {"name": "d_capo", "job": "검호", "level": "7"},
+        {"name": "LGJ20000", "job": "검호", "level": "7"},
+        {"name": "TinySlayers", "job": "검호", "level": "7"},
+        {"name": "ArtBeat", "job": "검호", "level": "7"},
+        {"name": "Kozi0518", "job": "검호", "level": "7"},
+    ]
 
     return data
 
@@ -77,10 +77,10 @@ def get_rank_info(page):
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
     for i in range(page * 10 - 9, page * 10 + 1):
-        name = current_data[str(i)]["name"]  # 닉네임 변경 반영한 최신 닉네임
+        name = current_data[i - 1]["name"]  # 닉네임 변경 반영한 최신 닉네임
         data["Name"].append(name)
-        data["Level"].append(current_data[str(i)]["level"])
-        data["Job"].append(current_data[str(i)]["job"])
+        data["Level"].append(current_data[i - 1]["level"])
+        data["Job"].append(current_data[i - 1]["job"])
 
         user_id = misc.get_id(name=name)
 
@@ -88,9 +88,10 @@ def get_rank_info(page):
             register_player.register_player(name)
             user_id = misc.get_id(name=name)
 
-        prev_rank = data_manager.read_data("TA_DEV-Ranks", "id-date-index", id=user_id, date="2025-01-01")[0][
-            "rank"
-        ]
+        prev_rank = data_manager.read_data(
+            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": "2025-01-01"}
+        )[0]["rank"]
+
         if prev_rank is None:
             data["Change"].append(None)
         else:

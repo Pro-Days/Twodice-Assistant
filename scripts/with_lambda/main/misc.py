@@ -48,16 +48,16 @@ def get_guild_list():
 
 
 def get_name(name):
-    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
 
     return data[0]["name"] if data else None
 
 
 def get_uuid(name="", uuid=""):
     if name:
-        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
     elif uuid:
-        data = data_manager.read_data("TA_DEV-Users", None, id=uuid)
+        data = data_manager.read_data("TA_DEV-Users", None, {"id": uuid})
 
     return data[0]["uuid"] if data else None
 
@@ -93,9 +93,9 @@ def get_profile_from_mc(name="", uuid="", names=None):
 
 def get_id(name="", uuid=""):
     if name:
-        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
     elif uuid:
-        data = data_manager.read_data("TA_DEV-Users", "uuid-index", uuid=uuid)
+        data = data_manager.read_data("TA_DEV-Users", "uuid-index", {"uuid": uuid})
 
     return data[0]["id"] if data else None
 
@@ -109,7 +109,7 @@ def get_max_id():
 
 
 def get_main_slot(name):
-    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
     return data[0]["mainSlot"]
 
 

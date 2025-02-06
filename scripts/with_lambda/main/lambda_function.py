@@ -3,9 +3,10 @@ import os
 import traceback
 
 import misc
-import get_rank_info as gri
 import send_msg as sm
+import get_rank_info as gri
 import register_player as rp
+import get_character_info as gci
 
 
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
@@ -53,7 +54,14 @@ def command_handler(event):
     # 일반 커맨드
     if cmd == "랭킹":
         print("랭킹 command received")
-        page = body["data"]["options"][0]["value"] if "options" in body["data"] else 1
+
+        page = 1
+        if "options" in body["data"]:
+            for i in body["data"]["options"]:
+                if i["name"] == "페이지":
+                    page = i["value"]
+                    break
+
         image_path = gri.get_rank_info(page)
         print("랭킹 image generated")
 
@@ -61,6 +69,33 @@ def command_handler(event):
             msg = "지금 한월 RPG의 캐릭터 랭킹을 보여드릴게요."
         else:
             msg = f"지금 한월 RPG의 캐릭터 랭킹 {page}페이지를 보여드릴게요."
+
+        return sm.send(event, msg, image=image_path)
+    elif cmd == "검색":
+        print("검색 command received")
+
+        slot = None
+        period = 7
+        if "options" in body["data"]:
+            for i in body["data"]["options"]:
+
+                if i["name"] == "닉네임":
+                    name = i["value"]
+
+                elif i["name"] == "슬롯":
+                    slot = i["value"]
+
+                elif i["name"] == "기간":
+                    period = i["value"]
+
+        if slot is None:
+            slot = misc.get_main_slot(name)
+            default = True
+        else:
+            default = False
+
+        msg, image_path = gci.get_character_info(name, slot, period, default)
+        print("검색 image generated")
 
         return sm.send(event, msg, image=image_path)
     else:
