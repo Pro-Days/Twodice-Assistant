@@ -4,7 +4,7 @@ import data_manager
 
 def register_player(name, slot=1):
 
-    while uuid := misc.get_uuid_from_mc(name) is None:
+    while uuid := misc.get_profile_from_mc(name) is None:
         pass
 
     item = data_manager.read_data("TA_DEV-Users", "uuid-index", uuid=uuid)

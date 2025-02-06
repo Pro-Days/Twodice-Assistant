@@ -2,6 +2,7 @@ import json
 import os
 import traceback
 
+import misc
 import get_rank_info as gri
 import send_msg as sm
 
@@ -48,42 +49,41 @@ def command_handler(event):
         return {"statusCode": 400, "body": json.dumps("unhandled command")}
 
 
-# def admin(self, cmd):
+def admin(event, cmd):
 
-#     if cmd == "ip":
-#         ip = misc.get_ip()
-#         sm.send(f"아이피 주소: {ip}", log_type=2)
+    if cmd == "ip":
+        ip = misc.get_ip()
 
-#         return
+        return sm.send(event, f"아이피 주소: {ip}", log_type=2)
 
-#     elif cmd == "user_list":
-#         pl_list = rp.registered_player_list()
+    elif cmd == "user_list":
+        pl_list = rp.registered_player_list()
 
-#         cmd = f"등록된 유저 수: {len(pl_list)}\n등록된 유저 목록\n" + "```" + ", ".join(pl_list) + "```"
+        cmd = f"등록된 유저 수: {len(pl_list)}\n등록된 유저 목록\n" + "```" + ", ".join(pl_list) + "```"
 
-#         self.send(cmd, message, log_type=4)
+        self.send(cmd, message, log_type=4)
 
-#         return
+        return
 
-#     elif cmd == "server_list":
-#         pl_list = rp.registered_player_list()
+    elif cmd == "server_list":
+        pl_list = rp.registered_player_list()
 
-#         cmd = (
-#             f"서버 수: {str(len(self.discord_client.guilds))}\n서버 목록\n"
-#             + "```"
-#             + ", ".join([guild.name for guild in self.discord_client.guilds])
-#             + "```"
-#         )
+        cmd = (
+            f"서버 수: {str(len(self.discord_client.guilds))}\n서버 목록\n"
+            + "```"
+            + ", ".join([guild.name for guild in self.discord_client.guilds])
+            + "```"
+        )
 
-#         self.send(cmd, message, log_type=4)
+        self.send(cmd, message, log_type=4)
 
-#         return
+        return
 
-#     elif cmd == "cmd":
-#         self.send(
-#             "1. stop\n2. ip\n3. user_list\n4. server_list\n5. cmd",
-#             message,
-#             log_type=4,
-#         )
+    elif cmd == "cmd":
+        self.send(
+            "1. stop\n2. ip\n3. user_list\n4. server_list\n5. cmd",
+            message,
+            log_type=4,
+        )
 
-#         return
+        return

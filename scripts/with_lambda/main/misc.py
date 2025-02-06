@@ -4,15 +4,6 @@ import platform
 import data_manager
 
 
-def get_real_name(name):
-    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
-
-    if data:
-        return data[0]["name"]
-    else:
-        return None
-
-
 def convert_path(path):
     """
     운영 체제에 따라 경로를 변환함.
@@ -22,12 +13,15 @@ def convert_path(path):
         system_path = path.replace("/", "\\")
     else:
         system_path = path.replace("\\", "/")
+
     return os.path.normpath(system_path)
 
 
 def get_ip():
     response = requests.get("https://api64.ipify.org?format=json")
+
     data = response.json()
+
     return data["ip"]
 
 
@@ -42,25 +36,48 @@ def get_guild_name(guild_id):
     return data["name"]
 
 
-def get_uuid(name="", _id=""):
+def get_name(name):
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
+
+    return data[0]["name"] if data else None
+
+
+def get_uuid(name="", uuid=""):
     if name:
         data = data_manager.read_data("TA_DEV-Users", "lower_name-index", lower_name=name.lower())
-    elif _id:
-        data = data_manager.read_data("TA_DEV-Users", None, id=_id)
+    elif uuid:
+        data = data_manager.read_data("TA_DEV-Users", None, id=uuid)
 
-    if data:
-        return data[0]["uuid"]
-    else:
-        return None
+    return data[0]["uuid"] if data else None
 
 
-def get_uuid_from_mc(name):
-    response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{name}")
+def get_profile_from_mc(name="", uuid="", names=None):
+    if name:
+        response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{name}")
+    elif uuid:
+        response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/{uuid}")
+    elif names:
+        # names를 10개 단위로 나눔
+        chunk_size = 10
+        chunked_list = [names[i : i + chunk_size] for i in range(0, len(names), chunk_size)]
 
-    if response.status_code == 200:
-        return response.json()["id"]
-    else:
-        return None
+        profiles = []
+
+        for chunk in chunked_list:
+            response = requests.post(
+                "https://api.minecraftservices.com/minecraft/profile/lookup/bulk/byname", json=chunk
+            )
+
+            data = response.json()
+
+            if len(data) != len(chunk):
+                data.extend([{}] * (len(chunk) - len(data)))
+
+            profiles.extend(data)
+
+        return profiles
+
+    return response.json() if response.status_code == 200 else None
 
 
 def get_id(name="", uuid=""):
@@ -69,10 +86,7 @@ def get_id(name="", uuid=""):
     elif uuid:
         data = data_manager.read_data("TA_DEV-Users", "uuid-index", uuid=uuid)
 
-    if data:
-        return data[0]["id"]
-    else:
-        return None
+    return data[0]["id"] if data else None
 
 
 def get_max_id():
@@ -109,3 +123,40 @@ def convert_job(job):
     }
 
     return job_dict[job]
+
+
+if __name__ == "__main__":
+    # print(
+    #     get_profile_from_mc(
+    #         names=[
+    #             "prodays",
+    #             "welcomepasta",
+    #             "welcomepasta1",
+    #             "welcomepasta2",
+    #             "welcomepasta3",
+    #             "welcomepasta4",
+    #             "welcomepasta5",
+    #             "welcomepasta6",
+    #             "welcomepasta7",
+    #             "welcomepasta8",
+    #             "welcomepasta9",
+    #             "welcomepasta10",
+    #             "welcomepasta11",
+    #             "welcomepasta12",
+    #             "welcomepasta13",
+    #             "welcomepasta14",
+    #             "welcomepasta15",
+    #             "welcomepasta16",
+    #             "welcomepasta17",
+    #             "welcomepasta18",
+    #             "welcomepasta19",
+    #             "welcomepasta20",
+    #             "welcomepasta21",
+    #             "welcomepasta22",
+    #             "welcomepasta23",
+    #             "welcomepasta24",
+    #         ]
+    #     )
+    # )
+
+    pass
