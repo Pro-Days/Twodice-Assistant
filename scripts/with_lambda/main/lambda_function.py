@@ -25,8 +25,9 @@ def lambda_handler(event, context):
 def command_handler(event):
 
     body = json.loads(event["body"])
+
     cmd = body["data"]["name"]
-    options = body["data"]["options"]
+    options = body["data"]["options"] if "options" in body["data"] else []
 
     print(f"command: {cmd}, options: {options}")
 
@@ -58,11 +59,10 @@ def command_handler(event):
     if cmd == "랭킹":
 
         page = 1
-        if "options" in body["data"]:
-            for i in body["data"]["options"]:
-                if i["name"] == "페이지":
-                    page = i["value"]
-                    break
+        for i in options:
+            if i["name"] == "페이지":
+                page = i["value"]
+                break
 
         if not (1 <= page <= 10):
             return sm.send(event, "페이지는 1부터 10까지만 가능합니다.")
@@ -80,17 +80,15 @@ def command_handler(event):
 
         slot = None
         period = 7
-        if "options" in body["data"]:
-            for i in body["data"]["options"]:
+        for i in options:
+            if i["name"] == "닉네임":
+                name = i["value"]
 
-                if i["name"] == "닉네임":
-                    name = i["value"]
+            elif i["name"] == "슬롯":
+                slot = i["value"]
 
-                elif i["name"] == "슬롯":
-                    slot = i["value"]
-
-                elif i["name"] == "기간":
-                    period = i["value"]
+            elif i["name"] == "기간":
+                period = i["value"]
 
         if slot is None:
             slot = misc.get_main_slot(name)
@@ -114,14 +112,13 @@ def command_handler(event):
     elif cmd == "등록":
 
         slot = 1
-        if "options" in body["data"]:
-            for i in body["data"]["options"]:
+        for i in options:
 
-                if i["name"] == "닉네임":
-                    name = i["value"]
+            if i["name"] == "닉네임":
+                name = i["value"]
 
-                elif i["name"] == "슬롯":
-                    slot = i["value"]
+            elif i["name"] == "슬롯":
+                slot = i["value"]
 
         if not (slot in [1, 2, 3, 4, 5]):
             return sm.send(event, "슬롯은 1부터 5까지만 가능합니다.")
