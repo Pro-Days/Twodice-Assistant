@@ -27,11 +27,11 @@ matplotlib.use("Agg")
 
 def get_current_character_data(name):
     data = [
-        {"job": "검호", "level": "195"},
-        {"job": "검호", "level": "195"},
-        {"job": "검호", "level": "195"},
-        {"job": "검호", "level": "195"},
-        {"job": "검호", "level": "195"},
+        {"job": "검호", "level": "200"},
+        {"job": "검호", "level": "200"},
+        {"job": "검호", "level": "200"},
+        {"job": "검호", "level": "200"},
+        {"job": "검호", "level": "200"},
     ]
 
     return data
@@ -273,9 +273,9 @@ def get_character_data(name, slot, period):
 
     today_data = get_current_character_data(name)
 
-    for i in range(len(data)):
+    for i in range(len(data["date"])):
         if data["date"][i] == today:
-            data["level"][i] = today_data[slot]["level"]
+            data["level"][i] = int(today_data[slot]["level"])
 
     return data if len(data["date"]) != 0 else None, len(data["date"])
 
@@ -419,7 +419,7 @@ def pchip_interpolate(x, y, x_new):
 if __name__ == "__main__":
     # if not rp.is_registered(name):
     #     print("해당 플레이어는 등록되지 않았습니다.")
-    print(get_character_info("prodays", 1, 10, False))
+    print(get_character_info("prodays", 1, 1, False))
 
     # print(get_character_data("ProDays", 1, 7))
 

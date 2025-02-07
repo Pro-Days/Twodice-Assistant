@@ -144,5 +144,6 @@ if __name__ == "__main__":
     # print(get_guild_list())
     # print(get_max_id())
     # print(get_profile_from_mc(name="aasdwdddddwdwdwd"))
+    print(get_main_slot("prodays"))
 
     pass

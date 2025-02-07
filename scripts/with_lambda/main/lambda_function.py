@@ -26,6 +26,9 @@ def command_handler(event):
 
     body = json.loads(event["body"])
     cmd = body["data"]["name"]
+    options = body["data"]["options"]
+
+    print(f"command: {cmd}, options: {options}")
 
     # 어드민 커맨드
     if body["member"]["user"]["id"] == ADMIN_ID:
@@ -99,6 +102,7 @@ def command_handler(event):
             default = False
 
         if not (slot in [1, 2, 3, 4, 5]):
+            print(slot, type(slot))
             return sm.send(event, "슬롯은 1부터 5까지만 가능합니다.")
 
         if not (1 <= period <= 365):
