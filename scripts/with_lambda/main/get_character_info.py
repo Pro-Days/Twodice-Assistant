@@ -37,7 +37,7 @@ def get_current_character_data(name):
     return data
 
 
-def get_character_info(name, slot=0, period=7, default=True):
+def get_character_info(name, slot, period, default):
     data, period = get_character_data(name, slot, period)
     name = misc.get_name(name)
 
@@ -266,8 +266,9 @@ def get_character_data(name, slot, period):
     data = {"date": [], "level": []}
     for i in db_data:
         date, _slot = i["date-slot"].split("#")
+        _slot = int(_slot) + 1
 
-        if int(_slot) == slot:
+        if _slot == slot:
             data["date"].append(date)
             data["level"].append(int(i["level"]))
 
