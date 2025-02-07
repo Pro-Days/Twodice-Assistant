@@ -276,7 +276,7 @@ def get_character_data(name, slot, period):
 
     for i in range(len(data["date"])):
         if data["date"][i] == today:
-            data["level"][i] = int(today_data[slot]["level"])
+            data["level"][i] = int(today_data[slot - 1]["level"])
 
     return data if len(data["date"]) != 0 else None, len(data["date"])
 
