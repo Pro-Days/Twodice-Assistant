@@ -56,7 +56,6 @@ def command_handler(event):
 
     # 일반 커맨드
     if cmd == "랭킹":
-        print("랭킹 command received")
 
         page = 1
         if "options" in body["data"]:
@@ -69,7 +68,6 @@ def command_handler(event):
             return sm.send(event, "페이지는 1부터 10까지만 가능합니다.")
 
         image_path = gri.get_rank_info(page)
-        print("랭킹 image generated")
 
         if page == 1:
             msg = "지금 한월 RPG의 캐릭터 랭킹을 보여드릴게요."
@@ -79,7 +77,6 @@ def command_handler(event):
         return sm.send(event, msg, image=image_path)
 
     elif cmd == "검색":
-        print("검색 command received")
 
         slot = None
         period = 7
@@ -102,7 +99,6 @@ def command_handler(event):
             default = False
 
         if not (slot in [1, 2, 3, 4, 5]):
-            print(slot, type(slot))
             return sm.send(event, "슬롯은 1부터 5까지만 가능합니다.")
 
         if not (1 <= period <= 365):
@@ -112,12 +108,10 @@ def command_handler(event):
             return sm.send(event, "등록되지 않은 플레이어입니다. 등록을 먼저 해주세요.")
 
         msg, image_path = gci.get_character_info(name, slot, period, default)
-        print("검색 image generated")
 
         return sm.send(event, msg, image=image_path)
 
     elif cmd == "등록":
-        print("등록 command received")
 
         slot = 1
         if "options" in body["data"]:
@@ -142,6 +136,5 @@ def command_handler(event):
         return sm.send(event, msg)
 
     else:
-        print("unhandled command: " + cmd)
         sm.send(event, "오류가 발생했습니다.", log_type=3, error=f"unhandled command: {cmd}")
         return {"statusCode": 400, "body": json.dumps("unhandled command")}

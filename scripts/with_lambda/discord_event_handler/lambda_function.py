@@ -23,7 +23,6 @@ def lambda_handler(event, context):
 
         message = timestamp + event["body"]
 
-        print("verify start")
         try:
             verify_key.verify(message.encode(), signature=bytes.fromhex(signature))
         except BadSignatureError:

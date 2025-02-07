@@ -149,8 +149,6 @@ def send_log(log_type, event, msg, image=None):
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
 
-    print(f"로그 전송 완료: {response.json()}, {msg.replace('\n', '\\n')}")
-
     # 이미지 전송
     if image:
         with open(image, "rb") as f:
