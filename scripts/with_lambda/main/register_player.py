@@ -3,6 +3,11 @@ import data_manager
 
 
 def register_player(name, slot):
+    """
+    등록 안된 플레이어 등록
+    등록 된 플레이어 mainSlot 변경
+    등록 된 닉네임 변경한 플레이어 닉네임 변경
+    """
 
     profile = misc.get_profile_from_mc(name)
 

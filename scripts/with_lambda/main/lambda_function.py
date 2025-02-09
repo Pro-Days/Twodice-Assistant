@@ -7,19 +7,38 @@ import send_msg as sm
 import get_rank_info as gri
 import register_player as rp
 import get_character_info as gci
+import update_data as ud
 
 
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
 
 
 def lambda_handler(event, context):
-    try:
-        print(f"start!\nevent: {event}")
-        return command_handler(event)
+    print(f"start!\nevent: {event}")
 
-    except:
-        sm.send(event, "오류가 발생했습니다.", log_type=3, error=traceback.format_exc())
-        return {"statusCode": 400, "body": json.dumps(traceback.format_exc())}
+    if (
+        event.get("headers", {}).get("user-agent", "unknown")
+        == "Discord-Interactions/1.0 (+https://discord.com)"
+    ):
+        try:
+            return command_handler(event)
+
+        except:
+            sm.send(event, "오류가 발생했습니다.", log_type=3, error=traceback.format_exc())
+            return {"statusCode": 400, "body": json.dumps(traceback.format_exc())}
+
+    elif event["action"] == "updateData-1D":
+        try:
+            print("update data - 1D")
+
+            ud.update_1D()
+
+            sm.send_log(4, event)
+            return {"statusCode": 200, "body": json.dumps("data updated - 1D")}
+
+        except:
+            sm.send_log(5, event, traceback.format_exc())
+            return {"statusCode": 400, "body": json.dumps(traceback.format_exc())}
 
 
 def command_handler(event):
