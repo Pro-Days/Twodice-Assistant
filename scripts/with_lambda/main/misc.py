@@ -1,4 +1,5 @@
 import os
+import datetime
 import requests
 import platform
 
@@ -141,6 +142,13 @@ def convert_job(job):
     }
 
     return job_dict[str(job)]
+
+
+def get_today():
+    kst_now = datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=9)
+    today_kst = kst_now.date()
+
+    return today_kst
 
 
 if __name__ == "__main__":

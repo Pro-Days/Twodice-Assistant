@@ -66,7 +66,7 @@ def get_current_rank_data() -> dict:
         {"level": "171", "job": "빙궁", "name": "d_capo"},
     ]
 
-    today = datetime.date.today()
+    today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
     delta_days = (today - base_date).days
@@ -103,7 +103,7 @@ def get_rank_info(page):
             register_player.register_player(name)
             user_id = misc.get_id(name=name)
 
-        today = datetime.datetime.now()
+        today = misc.get_today()
         prev_date = today - datetime.timedelta(days=1)
         prev_date_str = prev_date.strftime("%Y-%m-%d")
 

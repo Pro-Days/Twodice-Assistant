@@ -1,6 +1,8 @@
 import random
 import datetime
 
+import misc
+
 
 def get_current_character_data(name):
     data = [
@@ -11,7 +13,7 @@ def get_current_character_data(name):
         {"job": "검호", "level": "200"},
     ]
 
-    today = datetime.date.today()
+    today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
     delta_days = (today - base_date).days

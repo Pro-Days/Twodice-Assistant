@@ -35,7 +35,7 @@ def get_current_character_data(name):
         {"job": "검호", "level": "200"},
     ]
 
-    today = datetime.date.today()
+    today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
     delta_days = (today - base_date).days
@@ -256,7 +256,7 @@ def get_character_data(name, slot, period):
     data = {'date': ['2025-01-01'], 'level': [Decimal('97')], 'job': [Decimal('1')]}
     """
 
-    today = datetime.datetime.now()
+    today = misc.get_today()
     start_date = today - datetime.timedelta(days=period - 1)
 
     today = today.strftime("%Y-%m-%d")
@@ -291,7 +291,7 @@ def get_character_data(name, slot, period):
 def get_all_character_avg(period):
     data = {"date": [], "level": []}
 
-    today = datetime.datetime.now()
+    today = misc.get_today()
     start_date = today - datetime.timedelta(days=period - 1)
 
     today = today.strftime("%Y-%m-%d")
@@ -424,12 +424,12 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    # if not rp.is_registered(name):
-    #     print("해당 플레이어는 등록되지 않았습니다.")
     print(get_character_info("prodays", 1, 10, False))
 
     # print(get_character_data("ProDays", 1, 7))
 
     # print(get_all_character_avg(4))
+
+    # print(get_current_character_data("ProDays"))
 
     pass

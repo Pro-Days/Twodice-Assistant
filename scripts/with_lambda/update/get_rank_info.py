@@ -1,8 +1,9 @@
+import time
 import random
 import datetime
 import requests
 
-import time
+import misc
 import data_manager
 
 
@@ -45,7 +46,7 @@ def get_current_rank_data() -> dict:
         {"level": "171", "job": "빙궁", "name": "d_capo"},
     ]
 
-    today = datetime.date.today()
+    today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
     delta_days = (today - base_date).days

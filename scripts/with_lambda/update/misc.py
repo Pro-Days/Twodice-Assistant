@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 import data_manager
 
@@ -83,10 +84,18 @@ def convert_job(job):
     return job_dict[str(job)]
 
 
+def get_today():
+    kst_now = datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=9)
+    today_kst = kst_now.date()
+
+    return today_kst
+
+
 if __name__ == "__main__":
     # print(get_guild_list())
     # print(get_max_id())
     # print(get_profile_from_mc(name="aasdwdddddwdwdwd"))
     # print(get_main_slot("prodays"))
+    # print(get_today())
 
     pass

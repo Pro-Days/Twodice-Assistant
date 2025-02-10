@@ -36,7 +36,7 @@ def update_1D(event):
     """
 
     # 랭킹 업데이트
-    today = datetime.date.today() - datetime.timedelta(days=1)
+    today = misc.get_today() - datetime.timedelta(days=1)
 
     try:
         # 랭커 등록, 업데이트
@@ -108,7 +108,7 @@ def update_player(event, name, id):
     failed_list = []
     try:
         data = gci.get_current_character_data(name)
-        today = datetime.date.today() - datetime.timedelta(days=1)
+        today = misc.get_today() - datetime.timedelta(days=1)
 
         if not data:
             rp.register_player(name, misc.get_main_slot(name))
@@ -128,7 +128,7 @@ def update_player(event, name, id):
     if failed_list:
         try:
             data = gci.get_current_character_data(name)
-            today = datetime.date.today() - datetime.timedelta(days=1)
+            today = misc.get_today() - datetime.timedelta(days=1)
 
             if not data:
                 rp.register_player(name, misc.get_main_slot(name))
