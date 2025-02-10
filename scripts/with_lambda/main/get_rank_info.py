@@ -5,7 +5,6 @@ import datetime
 import platform
 import requests
 import threading
-import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
 import misc
@@ -142,8 +141,6 @@ def get_rank_info(page):
     for thread in threads:
         thread.join()
 
-    df = pd.DataFrame(data)
-
     header_text = ["순위", "닉네임", "레벨", "직업", "변동"]
     header_widths = [160, 500, 280, 240, 240]
 
@@ -190,7 +187,15 @@ def get_rank_info(page):
         draw.text((x + 24, 30), text, fill="black", font=font)
         x_offset += header_widths[i]
 
-    for i, row in df.iterrows():
+    for i in range(len(data["Rank"])):
+        row = {
+            "Rank": data["Rank"][i],
+            "Name": data["Name"][i],
+            "Level": data["Level"][i],
+            "Job": data["Job"][i],
+            "Change": data["Change"][i],
+        }
+
         y_offset = header_height + i * row_height
         text_y_offset = y_offset + 32
         x_offset = 0
@@ -227,18 +232,15 @@ def get_rank_info(page):
         draw.text((x_offset + 124, text_y_offset), row["Name"], fill="black", font=font)
         x_offset += header_widths[1]
 
-        if len(row["Level"]) == 1:
-            draw.text((x_offset + 128, text_y_offset), row["Level"], fill="black", font=font)
-        elif len(row["Level"]) == 2:
-            draw.text((x_offset + 116, text_y_offset), row["Level"], fill="black", font=font)
-        else:
-            draw.text((x_offset + 104, text_y_offset), row["Level"], fill="black", font=font)
+        draw.text(
+            (x_offset + 140 - len(row["Level"]) * 12, text_y_offset), row["Level"], fill="black", font=font
+        )
         x_offset += header_widths[2]
 
         draw.text((x_offset + 84, text_y_offset), row["Job"], fill="black", font=font)
         x_offset += header_widths[3]
 
-        if pd.notna(row["Change"]):
+        if row["Change"] is not None:
             change = int(row["Change"])
 
         else:
