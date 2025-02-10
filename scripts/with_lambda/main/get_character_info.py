@@ -237,16 +237,16 @@ def get_character_info(name, slot, period, default):
             rank = i + 1
             break
 
-    if default:
+    if period != 1:
         if rank is not None:
-            msg = f"지금 {name}님의 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
+            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
         else:
-            msg = f"지금 {name}님의 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
+            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
     else:
         if rank is not None:
-            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
+            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 현재 레벨 랭킹은 {rank}위에요."
         else:
-            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
+            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 레벨 랭킹에는 아직 등록되지 않았어요."
 
     return msg, image_path
 
@@ -257,22 +257,20 @@ def get_character_data(name, slot, period):
     """
 
     today = misc.get_today()
-    start_date = today - datetime.timedelta(days=period - 1)
+    if period != 1:
+        start_date = today - datetime.timedelta(days=period - 1)
 
-    today = today.strftime("%Y-%m-%d")
-    start_date = start_date.strftime("%Y-%m-%d")
+        today = today.strftime("%Y-%m-%d")
+        start_date = start_date.strftime("%Y-%m-%d")
 
-    _id = misc.get_id(name)
+        _id = misc.get_id(name)
 
-    db_data = dm.read_data(
-        "TA_DEV-DailyData", None, {"id": _id, "date-slot": [f"{start_date}#0", f"{today}#4"]}
-    )
-
-    # if not db_data:
-    #     return None
+        db_data = dm.read_data(
+            "TA_DEV-DailyData", None, {"id": _id, "date-slot": [f"{start_date}#0", f"{today}#4"]}
+        )
 
     data = {"date": [], "level": []}
-    if db_data:
+    if period != 1 and db_data:
         for i in db_data:
             date, _slot = i["date-slot"].split("#")
             _slot = int(_slot) + 1
