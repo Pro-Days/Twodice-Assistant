@@ -60,16 +60,16 @@ def get_character_info(name, slot, period, default):
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"])
 
-    df_avg = pd.DataFrame(all_character_avg)
-    df_avg["date"] = pd.to_datetime(df_avg["date"])
-
     y_min = df["level"].min()
     y_max = df["level"].max()
     y_range = y_max - y_min
 
-    display_avg = not (
+    df_avg = pd.DataFrame(all_character_avg)
+    display_avg = len(df_avg) > 1 and not (
         (df_avg["level"].max() < y_min - 0.1 * y_range) or (df_avg["level"].min() > y_max + 0.3 * y_range)
     )
+    if display_avg:
+        df_avg["date"] = pd.to_datetime(df_avg["date"])
 
     plt.figure(figsize=(10, 4))
     smooth_coeff = 10
@@ -268,17 +268,18 @@ def get_character_data(name, slot, period):
         "TA_DEV-DailyData", None, {"id": _id, "date-slot": [f"{start_date}#0", f"{today}#4"]}
     )
 
-    if not db_data:
-        return None
+    # if not db_data:
+    #     return None
 
     data = {"date": [], "level": []}
-    for i in db_data:
-        date, _slot = i["date-slot"].split("#")
-        _slot = int(_slot) + 1
+    if db_data:
+        for i in db_data:
+            date, _slot = i["date-slot"].split("#")
+            _slot = int(_slot) + 1
 
-        if _slot == slot:
-            data["date"].append(date)
-            data["level"].append(int(i["level"]))
+            if _slot == slot:
+                data["date"].append(date)
+                data["level"].append(int(i["level"]))
 
     today_data = get_current_character_data(name)
 
@@ -424,7 +425,7 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    print(get_character_info("prodays", 1, 10, False))
+    print(get_character_info("prodays", 1, 1, False))
 
     # print(get_character_data("ProDays", 1, 7))
 
