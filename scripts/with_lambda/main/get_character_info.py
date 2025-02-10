@@ -1,4 +1,5 @@
 import misc
+import random
 import datetime
 import platform
 import numpy as np
@@ -34,6 +35,14 @@ def get_current_character_data(name):
         {"job": "검호", "level": "200"},
     ]
 
+    today = datetime.date.today()
+    base_date = datetime.date(2025, 2, 1)
+
+    delta_days = (today - base_date).days
+
+    for d in data:
+        d["level"] = str(int(d["level"]) + delta_days * 3 + random.randint(0, 3))
+
     return data
 
 
@@ -44,7 +53,7 @@ def get_character_info(name, slot, period, default):
     if data == None:
         if default:
             return f"{name}님의 캐릭터 정보가 없어요. 다시 확인해주세요.", None
-        return f"{name}님의 {slot+1}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
+        return f"{name}님의 {slot}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
 
     all_character_avg = get_all_character_avg(period)
 
@@ -67,11 +76,11 @@ def get_character_info(name, slot, period, default):
 
     if display_avg:
         labels = [
-            (f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot+1}번 캐릭터 레벨"),
+            (f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"),
             "등록된 전체 캐릭터의 평균 레벨",
         ]
     else:
-        labels = [f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot+1}번 캐릭터 레벨"]
+        labels = [f"{name}의 캐릭터 레벨" if default else f"{name}의 {slot}번 캐릭터 레벨"]
 
     if period == 1:
         plt.plot("date", "level", data=df, color="C0", marker="o", label=labels[0])
@@ -235,9 +244,9 @@ def get_character_info(name, slot, period, default):
             msg = f"지금 {name}님의 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
     else:
         if rank is not None:
-            msg = f"지금 {name}님의 {slot+1}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
+            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
         else:
-            msg = f"지금 {name}님의 {slot+1}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
+            msg = f"지금 {name}님의 {slot}번 캐릭터 레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
 
     return msg, image_path
 
@@ -247,8 +256,7 @@ def get_character_data(name, slot, period):
     data = {'date': ['2025-01-01'], 'level': [Decimal('97')], 'job': [Decimal('1')]}
     """
 
-    # today = datetime.datetime.now()
-    today = datetime.datetime.strptime("2025-01-31", "%Y-%m-%d").date()  # 임시
+    today = datetime.datetime.now()
     start_date = today - datetime.timedelta(days=period - 1)
 
     today = today.strftime("%Y-%m-%d")
@@ -274,9 +282,8 @@ def get_character_data(name, slot, period):
 
     today_data = get_current_character_data(name)
 
-    for i in range(len(data["date"])):
-        if data["date"][i] == today:
-            data["level"][i] = int(today_data[slot - 1]["level"])
+    data["date"].append(today)
+    data["level"].append(int(today_data[slot - 1]["level"]))
 
     return data if len(data["date"]) != 0 else None, len(data["date"])
 
@@ -284,8 +291,7 @@ def get_character_data(name, slot, period):
 def get_all_character_avg(period):
     data = {"date": [], "level": []}
 
-    # today = datetime.datetime.now()
-    today = datetime.datetime.strptime("2025-01-31", "%Y-%m-%d").date()  # 임시
+    today = datetime.datetime.now()
     start_date = today - datetime.timedelta(days=period - 1)
 
     today = today.strftime("%Y-%m-%d")
@@ -420,10 +426,10 @@ def pchip_interpolate(x, y, x_new):
 if __name__ == "__main__":
     # if not rp.is_registered(name):
     #     print("해당 플레이어는 등록되지 않았습니다.")
-    print(get_character_info("prodays", 1, 1, False))
+    print(get_character_info("prodays", 1, 10, False))
 
     # print(get_character_data("ProDays", 1, 7))
 
-    # print(get_all_character_avg(7))
+    # print(get_all_character_avg(4))
 
     pass

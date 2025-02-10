@@ -9,7 +9,7 @@ def register_player(name, slot):
     등록 된 닉네임 변경한 플레이어 닉네임 변경
     """
 
-    profile = misc.get_profile_from_mc(name)
+    profile = misc.get_profile_from_mc(name=name)
 
     if profile is None:
         return False

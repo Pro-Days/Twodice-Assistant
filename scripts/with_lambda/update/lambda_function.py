@@ -23,7 +23,7 @@ def lambda_handler(event, context):
         if event["action"] == "update_1D":
             update_1D(event)
 
-            return {"statusCode": 200, "body": json.dumps({"message": "업데이트 완료"})}
+            return {"statusCode": 200, "body": json.dumps({"message": "업데이트 완료"}, ensure_ascii=False)}
 
     except:
         sm.send_log(5, event, traceback.format_exc())
@@ -31,8 +31,11 @@ def lambda_handler(event, context):
 
 
 def update_1D(event):
+    """
+    플레이어, 랭킹 업데이트
+    """
 
-    ## 플레이어, 랭킹 업데이트
+    # 랭킹 업데이트
     today = datetime.date.today() - datetime.timedelta(days=1)
 
     try:
@@ -45,11 +48,11 @@ def update_1D(event):
                 name = j["name"]
 
                 if not rp.is_registered(name):
-                    rp.register_player(name)
+                    rp.register_player(name, 1)
 
                 item = {
                     "date": today.strftime("%Y-%m-%d"),
-                    "rank": str(i + 1),
+                    "rank": i + 1,
                     "id": misc.get_id(name=name),
                     "job": misc.convert_job(j["job"]),
                     "level": int(j["level"]),
@@ -65,11 +68,11 @@ def update_1D(event):
                     name = j["name"]
 
                     if not rp.is_registered(name):
-                        rp.register_player(name)
+                        rp.register_player(name, 1)
 
                     item = {
                         "date": today.strftime("%Y-%m-%d"),
-                        "rank": str(i + 1),
+                        "rank": i + 1,
                         "id": misc.get_id(name=name),
                         "job": misc.convert_job(j["job"]),
                         "level": int(j["level"]),
@@ -92,7 +95,8 @@ def update_1D(event):
             t.start()
             threads.append(t)
 
-            time.sleep(0.5)
+            # 2 players/sec: 600 players -> 5 min
+            # time.sleep(0.5)
 
         for t in threads:
             t.join()
@@ -112,7 +116,7 @@ def update_player(event, name, id):
         for i, j in enumerate(data):
             item = {
                 "id": id,
-                "date-slot": f"{today.strftime("%Y-%m-%d")}#{i+1}",
+                "date-slot": f"{today.strftime("%Y-%m-%d")}#{i}",
                 "job": misc.convert_job(j["job"]),
                 "level": int(j["level"]),
             }
@@ -132,7 +136,7 @@ def update_player(event, name, id):
             for i, j in enumerate(data):
                 item = {
                     "id": id,
-                    "date-slot": f"{today.strftime("%Y-%m-%d")}#{i+1}",
+                    "date-slot": f"{today.strftime("%Y-%m-%d")}#{i}",
                     "job": misc.convert_job(j["job"]),
                     "level": int(j["level"]),
                 }
@@ -143,6 +147,5 @@ def update_player(event, name, id):
 
 
 if __name__ == "__main__":
-    # update_1D()
-    # timer()
+    print(lambda_handler({"action": "update_1D"}, None))
     pass

@@ -57,11 +57,8 @@ def get_name(name="", id=""):
     return data[0]["name"] if data else None
 
 
-def get_uuid(name="", uuid=""):
-    if name:
-        data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
-    elif uuid:
-        data = data_manager.read_data("TA_DEV-Users", None, {"id": uuid})
+def get_uuid(name=""):
+    data = data_manager.read_data("TA_DEV-Users", "lower_name-index", {"lower_name": name.lower()})
 
     return data[0]["uuid"] if data else None
 
@@ -69,8 +66,14 @@ def get_uuid(name="", uuid=""):
 def get_profile_from_mc(name="", uuid="", names=None):
     if name:
         response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{name}")
+        if not "name" in response:
+            response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{name}")
+
     elif uuid:
         response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/{uuid}")
+        if not "name" in response:
+            response = requests.get(f"https://api.mojang.com/user/profile/{uuid}")
+
     elif names:
         # names를 10개 단위로 나눔
         chunk_size = 10

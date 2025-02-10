@@ -6,8 +6,14 @@ import data_manager
 def get_profile_from_mc(name="", uuid="", names=None):
     if name:
         response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{name}")
+        if not "name" in response:
+            response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{name}")
+
     elif uuid:
         response = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/{uuid}")
+        if not "name" in response:
+            response = requests.get(f"https://api.mojang.com/user/profile/{uuid}")
+
     elif names:
         # names를 10개 단위로 나눔
         chunk_size = 10

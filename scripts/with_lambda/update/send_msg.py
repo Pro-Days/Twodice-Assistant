@@ -56,7 +56,7 @@ def send_log(log_type, event, msg):
 
     # 로그 전송
     payload = {
-        "content": "" if log_type == 5 else f"<@{ADMIN_ID}>",
+        "content": "" if log_type == 4 else f"<@{ADMIN_ID}>",
         "embeds": [{"title": title, "color": color, "fields": fields}],
     }
 

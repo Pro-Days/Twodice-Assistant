@@ -9,7 +9,7 @@ def register_player(name, slot):
     등록 된 닉네임 변경한 플레이어 닉네임 변경
     """
 
-    profile = misc.get_profile_from_mc(name)
+    profile = misc.get_profile_from_mc(name=name)
 
     if profile is None:
         raise Exception
@@ -59,6 +59,7 @@ def is_registered(name):
 
 
 if __name__ == "__main__":
-    # register_player("asdf123", 1)
+    register_player("1mkr", 1)
     # print(get_registered_players())
+    # print(is_registered("prodays"))
     pass
