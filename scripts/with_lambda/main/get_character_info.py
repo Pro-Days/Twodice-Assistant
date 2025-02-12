@@ -48,8 +48,8 @@ def get_current_character_data(name):
     return data
 
 
-def get_character_info(name, slot, period, default):
-    data, period = get_character_data(name, slot, period)
+def get_character_info(name, slot, period, default, today):
+    data, period = get_character_data(name, slot, period, today)
     name = misc.get_name(name)
 
     if data == None:
@@ -57,7 +57,7 @@ def get_character_info(name, slot, period, default):
             return f"{name}님의 캐릭터 정보가 없어요. 다시 확인해주세요.", None
         return f"{name}님의 {slot}번 캐릭터 정보가 없어요. 다시 확인해주세요.", None
 
-    all_character_avg = get_all_character_avg(period)
+    all_character_avg = get_all_character_avg(period, today)
 
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"])
@@ -257,12 +257,11 @@ def get_character_info(name, slot, period, default):
     return msg, image_path
 
 
-def get_character_data(name, slot, period):
+def get_character_data(name, slot, period, today):
     """
     data = {'date': ['2025-01-01'], 'level': [Decimal('97')], 'job': [Decimal('1')]}
     """
 
-    today = misc.get_today()
     if period != 1:
         start_date = today - datetime.timedelta(days=period - 1)
 
@@ -286,19 +285,19 @@ def get_character_data(name, slot, period):
                 data["level"].append(int(i["level"]))
                 data["job"].append(int(i["job"]))
 
-    today_data = get_current_character_data(name)
+    if today == misc.get_today().strftime("%Y-%m-%d"):
+        today_data = get_current_character_data(name)
 
-    data["date"].append(today)
-    data["level"].append(int(today_data[slot - 1]["level"]))
-    data["job"].append(misc.convert_job(today_data[slot - 1]["job"]))
+        data["date"].append(today)
+        data["level"].append(int(today_data[slot - 1]["level"]))
+        data["job"].append(misc.convert_job(today_data[slot - 1]["job"]))
 
     return data if len(data["date"]) != 0 else None, len(data["date"])
 
 
-def get_all_character_avg(period):
+def get_all_character_avg(period, today):
     data = {"date": [], "level": []}
 
-    today = misc.get_today()
     start_date = today - datetime.timedelta(days=period - 1)
 
     today = today.strftime("%Y-%m-%d")
@@ -431,9 +430,11 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    print(get_character_info("prodays", 4, 10, False))
+    today = datetime.datetime.strptime("2025-02-01", "%Y-%m-%d").date()
 
-    # print(get_character_data("ProDays", 1, 7))
+    print(get_character_info("prodays", 4, 10, False, today))
+
+    # print(get_character_data("ProDays", 1, 7, day))
 
     # print(get_all_character_avg(4))
 

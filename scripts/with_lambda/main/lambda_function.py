@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 import traceback
 
 import misc
@@ -81,6 +82,7 @@ def command_handler(event):
 
         slot = None
         period = 7
+        today = None
         for i in options:
             if i["name"] == "닉네임":
                 name = i["value"]
@@ -90,6 +92,9 @@ def command_handler(event):
 
             elif i["name"] == "기간":
                 period = i["value"]
+
+            elif i["name"] == "날짜":
+                today = i["value"]
 
         if rp.is_registered(name) is False:
             return sm.send(event, "등록되지 않은 플레이어입니다. 등록을 먼저 해주세요.")
@@ -104,7 +109,12 @@ def command_handler(event):
         if not (1 <= period <= 365):
             return sm.send(event, "기간은 1부터 365까지만 가능합니다.")
 
-        msg, image_path = gci.get_character_info(name, slot, period, default)
+        try:
+            today = datetime.datetime.strptime(today, "%Y-%m-%d").date() if today else misc.get_today()
+        except:
+            return sm.send(event, "날짜 형식이 잘못되었습니다. (예시: 2025-01-01)")
+
+        msg, image_path = gci.get_character_info(name, slot, period, default, today)
 
         return sm.send(event, msg, image=image_path)
 
