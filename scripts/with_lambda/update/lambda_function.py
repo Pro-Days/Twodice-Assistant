@@ -93,7 +93,7 @@ def update_1D(event):
             threads.append(t)
 
             # 2 players/sec: 600 players -> 5 min
-            # time.sleep(0.5)
+            time.sleep(0.5)
 
         for t in threads:
             t.join()
