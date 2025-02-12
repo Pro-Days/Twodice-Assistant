@@ -26,7 +26,7 @@ def download_image(url, num, list_name):
     list_name[num] = head_path
 
 
-def get_current_rank_data() -> dict:
+def get_current_rank_data(page=0) -> dict:
     """
     현재 전체 캐릭터 랭킹 데이터 반환
     {"name": "ProDays", "job": "검호", "level": "100"}
@@ -68,7 +68,7 @@ def get_current_rank_data() -> dict:
     today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
-    delta_days = (today - base_date).days
+    delta_days = (today - base_date).days + 1
 
     random.seed(delta_days)
 
@@ -77,7 +77,7 @@ def get_current_rank_data() -> dict:
 
     data = sorted(data, key=lambda x: int(x["level"]), reverse=True)
 
-    return data
+    return data[page * 10 - 10 : page * 10] if page != 0 else data
 
 
 def get_rank_info(page):
@@ -89,14 +89,14 @@ def get_rank_info(page):
         "Change": [],
     }
 
-    current_data = get_current_rank_data()
+    current_data = get_current_rank_data(page)
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
-    for i in range(page * 10 - 9, page * 10 + 1):
-        name = current_data[i - 1]["name"]  # 닉네임 변경 반영한 최신 닉네임
+    for i in range(10):
+        name = current_data[i]["name"]  # 닉네임 변경 반영한 최신 닉네임
         data["Name"].append(name)
-        data["Level"].append(current_data[i - 1]["level"])
-        data["Job"].append(current_data[i - 1]["job"])
+        data["Level"].append(current_data[i]["level"])
+        data["Job"].append(current_data[i]["job"])
 
         user_id = misc.get_id(name=name)
 
@@ -115,7 +115,7 @@ def get_rank_info(page):
         if prev_rank is None:
             data["Change"].append(None)
         else:
-            data["Change"].append(prev_rank - i)
+            data["Change"].append(prev_rank - (i + page * 10 - 9))
 
     avatar_images = [""] * 10
 
@@ -387,7 +387,7 @@ def get_rank_info(page):
 
 
 if __name__ == "__main__":
-    print(get_rank_info(1))
+    print(get_rank_info(3))
     # print(get_current_rank_data())
     # print(get_prev_player_rank(50, "2025-01-01"))
     pass

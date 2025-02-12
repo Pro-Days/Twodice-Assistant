@@ -7,7 +7,7 @@ import misc
 import data_manager
 
 
-def get_current_rank_data() -> dict:
+def get_current_rank_data(page=0) -> dict:
     """
     현재 전체 캐릭터 랭킹 데이터 반환
     {"name": "ProDays", "job": "검호", "level": "100"}
@@ -76,8 +76,9 @@ def get_current_rank_data() -> dict:
 
     data = sorted(data, key=lambda x: int(x["level"]), reverse=True)
 
-    return data
+    return data[page * 10 - 9 : page * 10 + 1] if page != 0 else data
 
 
 if __name__ == "__main__":
-    print(get_current_rank_data(10))
+    # print(get_current_rank_data(10))
+    pass

@@ -38,7 +38,7 @@ def get_current_character_data(name):
     today = misc.get_today()
     base_date = datetime.date(2025, 2, 1)
 
-    delta_days = (today - base_date).days
+    delta_days = (today - base_date).days + 1
 
     random.seed(delta_days + sum(ord(c) for c in name))
 
@@ -425,7 +425,7 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    print(get_character_info("prodays", 1, 1, False))
+    print(get_character_info("prodays", 1, 10, False))
 
     # print(get_character_data("ProDays", 1, 7))
 
