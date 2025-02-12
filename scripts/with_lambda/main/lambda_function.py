@@ -111,6 +111,9 @@ def command_handler(event):
 
         try:
             today = datetime.datetime.strptime(today, "%Y-%m-%d").date() if today else misc.get_today()
+
+            if today > misc.get_today():
+                return sm.send(event, "미래 날짜는 조회할 수 없습니다.")
         except:
             return sm.send(event, "날짜 형식이 잘못되었습니다. (예시: 2025-01-01)")
 
