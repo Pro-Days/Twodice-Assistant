@@ -235,7 +235,11 @@ def get_character_info(name, slot, period, default):
     rank = None
     ranks = gri.get_current_rank_data()
     for i, j in enumerate(ranks):
-        if j["name"] == name:
+        if (
+            j["name"] == name
+            and int(j["level"]) == current_level
+            and misc.convert_job(j["job"]) == df["job"].iat[-1]
+        ):
             rank = i + 1
             break
 
@@ -271,7 +275,7 @@ def get_character_data(name, slot, period):
             "TA_DEV-DailyData", None, {"id": _id, "date-slot": [f"{start_date}#0", f"{today}#4"]}
         )
 
-    data = {"date": [], "level": []}
+    data = {"date": [], "level": [], "job": []}
     if period != 1 and db_data:
         for i in db_data:
             date, _slot = i["date-slot"].split("#")
@@ -280,11 +284,13 @@ def get_character_data(name, slot, period):
             if _slot == slot:
                 data["date"].append(date)
                 data["level"].append(int(i["level"]))
+                data["job"].append(int(i["job"]))
 
     today_data = get_current_character_data(name)
 
     data["date"].append(today)
     data["level"].append(int(today_data[slot - 1]["level"]))
+    data["job"].append(misc.convert_job(today_data[slot - 1]["job"]))
 
     return data if len(data["date"]) != 0 else None, len(data["date"])
 
@@ -425,7 +431,7 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    print(get_character_info("prodays", 1, 10, False))
+    print(get_character_info("prodays", 4, 10, False))
 
     # print(get_character_data("ProDays", 1, 7))
 
