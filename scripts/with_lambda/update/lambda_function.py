@@ -13,9 +13,6 @@ import register_player as rp
 import get_character_info as gci
 
 
-ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
-
-
 def lambda_handler(event, context):
     print(f"start!\nevent: {event}")
 
