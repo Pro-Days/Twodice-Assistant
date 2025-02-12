@@ -70,6 +70,8 @@ def get_current_rank_data() -> dict:
 
     delta_days = (today - base_date).days
 
+    random.seed(delta_days)
+
     for d in data:
         d["level"] = str(int(d["level"]) + delta_days * 3 + random.randint(0, 3))
 

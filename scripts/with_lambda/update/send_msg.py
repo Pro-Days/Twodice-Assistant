@@ -5,6 +5,7 @@ import datetime
 
 LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 def send_log(log_type, event, msg):
@@ -20,7 +21,7 @@ def send_log(log_type, event, msg):
         }
 
         title = "투다이스 어시스턴트 데이터 업데이트 로그"
-        color = 15548997
+        color = 3447003
 
         fields = []
         for key, value in embed_json.items():
@@ -62,7 +63,7 @@ def send_log(log_type, event, msg):
 
     url = f"https://discord.com/api/v10/channels/{LOG_CHANNEL_ID}/messages"
 
-    headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bot {DISCORD_TOKEN}", "Content-Type": "application/json"}
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
 

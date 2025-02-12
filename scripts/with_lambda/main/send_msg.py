@@ -7,6 +7,7 @@ import misc
 
 LOG_CHANNEL_ID = os.getenv("DISCORD_LOG_CHANNEL_ID")
 ADMIN_ID = os.getenv("DISCORD_ADMIN_ID")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 def send(event, msg, image=None, log_type=1, error=None):
@@ -140,7 +141,7 @@ def send_log(log_type, event, msg="", image=None):
 
     url = f"https://discord.com/api/v10/channels/{LOG_CHANNEL_ID}/messages"
 
-    headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bot {DISCORD_TOKEN}", "Content-Type": "application/json"}
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
 
@@ -152,7 +153,7 @@ def send_log(log_type, event, msg="", image=None):
         payload = {
             "content": "",
         }
-        headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
+        headers = {"Authorization": f"Bot {DISCORD_TOKEN}"}
 
         url = f"https://discord.com/api/v10/channels/{LOG_CHANNEL_ID}/messages"
 

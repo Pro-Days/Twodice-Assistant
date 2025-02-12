@@ -100,6 +100,8 @@ def update_1D(event):
     except:
         sm.send_log(5, event, "플레이어 데이터 업데이트 실패" + traceback.format_exc())
 
+    sm.send_log(4, event, "데이터 업데이트 완료")
+
 
 def update_player(event, name, id):
     failed_list = []
