@@ -26,7 +26,7 @@ def download_image(url, num, list_name):
     list_name[num] = head_path
 
 
-def get_rank_data(day):
+def get_rank_data(day, page=0):
     data = data_manager.read_data("TA_DEV-Ranks", condition_dict={"date": day.strftime("%Y-%m-%d")})
 
     for i, j in enumerate(data):
@@ -34,8 +34,9 @@ def get_rank_data(day):
         data[i]["id"] = int(j["id"])
         data[i]["job"] = int(j["job"])
         data[i]["level"] = int(j["level"])
+        data[i]["name"] = misc.get_name(id=j["id"])
 
-    return data
+    return data if page == 0 else data[page * 10 - 10 : page * 10]
 
 
 def get_current_rank_data(page=0) -> dict:
@@ -92,7 +93,7 @@ def get_current_rank_data(page=0) -> dict:
     return data[page * 10 - 10 : page * 10] if page != 0 else data
 
 
-def get_rank_info(page):
+def get_rank_info(page, today):
     data = {
         "Rank": range(page * 10 - 9, page * 10 + 1),
         "Name": [],
@@ -101,7 +102,10 @@ def get_rank_info(page):
         "Change": [],
     }
 
-    current_data = get_current_rank_data(page)
+    if today == misc.get_today():
+        current_data = get_current_rank_data(page)
+    else:
+        current_data = get_rank_data(today, page)
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
     for i in range(10):
@@ -116,7 +120,6 @@ def get_rank_info(page):
             register_player.register_player(name)
             user_id = misc.get_id(name=name)
 
-        today = misc.get_today()
         prev_date = today - datetime.timedelta(days=1)
         prev_date_str = prev_date.strftime("%Y-%m-%d")
 
@@ -203,10 +206,10 @@ def get_rank_info(page):
 
     for i in range(len(data["Rank"])):
         row = {
-            "Rank": data["Rank"][i],
+            "Rank": str(data["Rank"][i]),
             "Name": data["Name"][i],
-            "Level": data["Level"][i],
-            "Job": data["Job"][i],
+            "Level": str(data["Level"][i]),
+            "Job": data["Job"][i] if isinstance(data["Job"][i], str) else misc.convert_job(data["Job"][i]),
             "Change": data["Change"][i],
         }
 
@@ -256,7 +259,6 @@ def get_rank_info(page):
 
         if row["Change"] is not None:
             change = int(row["Change"])
-
         else:
             change = None
 
@@ -395,11 +397,18 @@ def get_rank_info(page):
 
     rank_info_image.save(image_path)
 
-    return image_path
+    text_day = "지금" if today == misc.get_today() else today.strftime("%Y년 %m월 %d일")
+    text_page = "을" if page == 1 else f" {page}페이지를"
+
+    msg = f"{text_day} 한월 RPG의 캐릭터 랭킹{text_page} 보여드릴게요."
+
+    return msg, image_path
 
 
 if __name__ == "__main__":
-    # print(get_rank_info(3))
+    today = datetime.datetime.strptime("2025-02-12", "%Y-%m-%d").date()
+
+    print(get_rank_info(1, today))
     # print(get_current_rank_data())
     # print(get_prev_player_rank(50, "2025-01-01"))
     # print(get_rank_data(datetime.date(2025, 2, 1)))

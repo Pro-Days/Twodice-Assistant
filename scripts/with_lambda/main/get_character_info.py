@@ -246,7 +246,7 @@ def get_character_info(name, slot, period, default, today):
     else:
         ranks = gri.get_rank_data(today)
         for i, j in enumerate(ranks):
-            if j["id"] == misc.get_id(name) and j["level"] == current_level and j["job"] == df["job"].iat[-1]:
+            if j["name"] == name and j["level"] == current_level and j["job"] == df["job"].iat[-1]:
                 rank = j["rank"]
                 break
 

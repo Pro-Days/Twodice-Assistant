@@ -60,21 +60,27 @@ def command_handler(event):
     if cmd == "랭킹":
 
         page = 1
+        today = None
         for i in options:
             if i["name"] == "페이지":
                 page = i["value"]
-                break
+
+            elif i["name"] == "날짜":
+                today = i["value"]
 
         # if not (1 <= page <= 10):
         if not (1 <= page <= 3):  # 임시로 3까지만
             return sm.send(event, "페이지는 1부터 10까지만 가능합니다.")
 
-        image_path = gri.get_rank_info(page)
+        try:
+            today = datetime.datetime.strptime(today, "%Y-%m-%d").date() if today else misc.get_today()
 
-        if page == 1:
-            msg = "지금 한월 RPG의 캐릭터 랭킹을 보여드릴게요."
-        else:
-            msg = f"지금 한월 RPG의 캐릭터 랭킹 {page}페이지를 보여드릴게요."
+            if today > misc.get_today():
+                return sm.send(event, "미래 날짜는 조회할 수 없습니다.")
+        except:
+            return sm.send(event, "날짜 형식이 잘못되었습니다. (예시: 2025-01-01)")
+
+        msg, image_path = gri.get_rank_info(page, today)
 
         return sm.send(event, msg, image=image_path)
 
