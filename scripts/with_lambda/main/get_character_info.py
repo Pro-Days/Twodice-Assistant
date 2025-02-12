@@ -233,26 +233,29 @@ def get_character_info(name, slot, period, default, today):
     level_change = df["level"].iat[-1] - df["level"].iat[0]
 
     rank = None
-    ranks = gri.get_current_rank_data()
-    for i, j in enumerate(ranks):
-        if (
-            j["name"] == name
-            and int(j["level"]) == current_level
-            and misc.convert_job(j["job"]) == df["job"].iat[-1]
-        ):
-            rank = i + 1
-            break
-
-    if period != 1:
-        if rank is not None:
-            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n현재 레벨 랭킹은 {rank}위에요."
-        else:
-            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 지난 {period}일간 {level_change}레벨 상승하셨어요!\n레벨 랭킹에는 아직 등록되지 않았어요."
+    if today == misc.get_today():
+        ranks = gri.get_current_rank_data()
+        for i, j in enumerate(ranks):
+            if (
+                j["name"] == name
+                and int(j["level"]) == current_level
+                and misc.convert_job(j["job"]) == df["job"].iat[-1]
+            ):
+                rank = i + 1
+                break
     else:
-        if rank is not None:
-            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 현재 레벨 랭킹은 {rank}위에요."
-        else:
-            msg = f"지금 {name}님의 {f'{slot}번 캐릭터 ' if not default else ''}레벨은 {current_level}이고, 레벨 랭킹에는 아직 등록되지 않았어요."
+        ranks = gri.get_rank_data(today)
+        for i, j in enumerate(ranks):
+            if j["id"] == misc.get_id(name) and j["level"] == current_level and j["job"] == df["job"].iat[-1]:
+                rank = j["rank"]
+                break
+
+    text_day = "지금" if today == misc.get_today() else today.strftime("%Y년 %m월 %d일")
+    text_slot = f"{slot}번 캐릭터 " if not default else ""
+    text_changed = f"{period}일간 {level_change}레벨 상승하셨어요!\n" if period != 1 else ""
+    text_rank = f"레벨 랭킹은 {rank}위에요." if rank is not None else "레벨 랭킹에는 아직 등록되지 않았어요."
+
+    msg = f"{text_day} {name}님의 {text_slot}레벨은 {current_level}이고, {text_changed}{text_rank}"
 
     return msg, image_path
 
@@ -430,9 +433,9 @@ def pchip_interpolate(x, y, x_new):
 
 
 if __name__ == "__main__":
-    today = datetime.datetime.strptime("2025-02-01", "%Y-%m-%d").date()
+    today = datetime.datetime.strptime("2025-02-11", "%Y-%m-%d").date()
 
-    print(get_character_info("prodays", 4, 10, False, today))
+    print(get_character_info("prodays", 1, 10, False, today))
 
     # print(get_character_data("ProDays", 1, 7, day))
 

@@ -26,6 +26,18 @@ def download_image(url, num, list_name):
     list_name[num] = head_path
 
 
+def get_rank_data(day):
+    data = data_manager.read_data("TA_DEV-Ranks", condition_dict={"date": day.strftime("%Y-%m-%d")})
+
+    for i, j in enumerate(data):
+        data[i]["rank"] = int(j["rank"])
+        data[i]["id"] = int(j["id"])
+        data[i]["job"] = int(j["job"])
+        data[i]["level"] = int(j["level"])
+
+    return data
+
+
 def get_current_rank_data(page=0) -> dict:
     """
     현재 전체 캐릭터 랭킹 데이터 반환
@@ -387,7 +399,8 @@ def get_rank_info(page):
 
 
 if __name__ == "__main__":
-    print(get_rank_info(3))
+    # print(get_rank_info(3))
     # print(get_current_rank_data())
     # print(get_prev_player_rank(50, "2025-01-01"))
+    # print(get_rank_data(datetime.date(2025, 2, 1)))
     pass
