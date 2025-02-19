@@ -152,4 +152,4 @@ def command_handler(event):
 
     else:
         sm.send(event, "오류가 발생했습니다.", log_type=3, error=f"unhandled command: {cmd}")
-        return {"statusCode": 400, "body": json.dumps("unhandled command")}
+        return {"statusCode": 400, "body": json.dumps(f"unhandled command: {cmd}")}
