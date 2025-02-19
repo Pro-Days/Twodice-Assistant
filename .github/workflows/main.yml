@@ -1,0 +1,24 @@
+name: deploy to lambda
+
+on: [push]
+
+jobs:
+  deploy_main:
+    name: deploy lambda function main
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Build binary
+        run: |
+          cd scripts/with_lambda/main && zip deployment.zip *
+          
+      - name: default deploy
+        uses: appleboy/lambda-action@v0.2.0
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ap-northeast-2
+          function_name: TA_DEV-lambda_main
+          zip_file: scripts/with_lambda/main/deployment.zip
