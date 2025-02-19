@@ -1,63 +1,99 @@
 import os
-import csv
-import json
-import misc
+import time
+import random
+import datetime
+import platform
 import requests
 import threading
-import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
+
+import misc
+import data_manager
+import register_player
 
 
 def download_image(url, num, list_name):
     response = requests.get(url)
 
-    if response.status_code == 200:
+    os_name = platform.system()
+    if os_name == "Linux":
+        head_path = misc.convert_path(f"\\tmp\\player_heads\\player{num}.png")
+    else:
         head_path = misc.convert_path(f"assets\\player_heads\\player{num}.png")
 
-        with open(head_path, "wb") as file:
-            file.write(response.content)
-        list_name[num] = head_path
+    with open(head_path, "wb") as file:
+        file.write(response.content)
+    list_name[num] = head_path
 
 
-def hanwol(ans):
-    ans_json = json.loads(ans)
-    if ans_json["fn_id"] == 2:
-        if "page" in ans_json["var"]:
-            page = int(ans_json["var"]["page"])
-        else:
-            page = 1  # 1~3
-        image = get_rank_info(page)
+def get_rank_data(day, page=0):
+    data = data_manager.read_data("TA_DEV-Ranks", condition_dict={"date": day.strftime("%Y-%m-%d")})
 
-        print(image)
+    for i, j in enumerate(data):
+        data[i]["rank"] = int(j["rank"])
+        data[i]["id"] = int(j["id"])
+        data[i]["job"] = int(j["job"])
+        data[i]["level"] = int(j["level"])
+        data[i]["name"] = misc.get_name(id=j["id"])
+
+    return data if page == 0 else data[page * 10 - 10 : page * 10]
 
 
-def get_current_rank_data():
+def get_current_rank_data(page=0) -> dict:
     """
-    data = {
-        "1": {"name": "플레이어1", "job": "검호", "level": 100},
-        "2": {"name": "플레이어2", "job": "검호", "level": 100},
-        "3": {"name": "플레이어3", "job": "검호", "level": 100},
-        ...
-        "100": {"name": "플레이어100", "job": "검호", "level": 100},
-    }
+    현재 전체 캐릭터 랭킹 데이터 반환
+    {"name": "ProDays", "job": "검호", "level": "100"}
     """
-    with open(misc.convert_path("data\\rank.csv"), "r", encoding="UTF8") as file:
-        lines = file.readlines()
 
-    data = {}
+    data = [
+        {"level": "200", "job": "검호", "name": "ProDays"},
+        {"level": "199", "job": "검호", "name": "Aventurine_0"},
+        {"level": "198", "job": "매화", "name": "heekp"},
+        {"level": "197", "job": "매화", "name": "krosh0127"},
+        {"level": "196", "job": "살수", "name": "_IIN"},
+        {"level": "195", "job": "살수", "name": "YOUKONG"},
+        {"level": "194", "job": "검호", "name": "ino2423"},
+        {"level": "193", "job": "매화", "name": "Route88"},
+        {"level": "192", "job": "검호", "name": "ljinsoo"},
+        {"level": "191", "job": "살수", "name": "ggameee"},
+        {"level": "190", "job": "살수", "name": "Lemong_0"},
+        {"level": "189", "job": "매화", "name": "1yeons"},
+        {"level": "188", "job": "도제", "name": "sungchanmom"},
+        {"level": "187", "job": "술사", "name": "tmdwns0818"},
+        {"level": "186", "job": "도사", "name": "poro_rany"},
+        {"level": "185", "job": "도제", "name": "Master_Rakan_"},
+        {"level": "184", "job": "도제", "name": "Protect_Choco"},
+        {"level": "183", "job": "빙궁", "name": "LGJ20000"},
+        {"level": "182", "job": "도사", "name": "1mkr"},
+        {"level": "181", "job": "귀궁", "name": "Kozi0518"},
+        {"level": "180", "job": "술사", "name": "roadhyeon03"},
+        {"level": "179", "job": "술사", "name": "aaqq2005y"},
+        {"level": "178", "job": "술사", "name": "spemdnjs"},
+        {"level": "177", "job": "도제", "name": "Moncler02"},
+        {"level": "176", "job": "도사", "name": "Welcome_Pasta"},
+        {"level": "175", "job": "도사", "name": "world_3034"},
+        {"level": "174", "job": "빙궁", "name": "ArtBeat"},
+        {"level": "173", "job": "빙궁", "name": "TinySlayers"},
+        {"level": "172", "job": "귀궁", "name": "neoreow"},
+        {"level": "171", "job": "빙궁", "name": "d_capo"},
+    ]
 
-    for line in lines:
-        rank, name, job, level = line.split(",")
-        data[rank] = {
-            "name": name,
-            "job": job,
-            "level": level[:-1],
-        }
+    today = misc.get_today()
+    base_date = datetime.date(2025, 2, 1)
 
-    return data
+    delta_days = (today - base_date).days + 1
+
+    random.seed(delta_days)
+
+    for d in data:
+        d["level"] = str(int(d["level"]) + delta_days * 3 + random.randint(0, 3))
+
+    data = sorted(data, key=lambda x: int(x["level"]), reverse=True)
+
+    return data[page * 10 - 10 : page * 10] if page != 0 else data
 
 
-def get_rank_info(page):
+def get_rank_info(page, today):
     data = {
         "Rank": range(page * 10 - 9, page * 10 + 1),
         "Name": [],
@@ -66,21 +102,46 @@ def get_rank_info(page):
         "Change": [],
     }
 
-    current_data = get_current_rank_data()
+    if today == misc.get_today():
+        current_data = get_current_rank_data(page)
+    else:
+        current_data = get_rank_data(today, page)
 
     # 실시간 랭킹 데이터를 가져와서 data에 추가
-    for i in range(page * 10 - 9, page * 10 + 1):
-        data["Name"].append(current_data[str(i)]["name"])
-        data["Level"].append(current_data[str(i)]["level"])
-        data["Job"].append(current_data[str(i)]["job"])
+    for i in range(10):
+        name = current_data[i]["name"]  # 닉네임 변경 반영한 최신 닉네임
+        data["Name"].append(name)
+        data["Level"].append(current_data[i]["level"])
+        data["Job"].append(current_data[i]["job"])
 
-        prev_rank = get_prev_player_rank(current_data[str(i)]["name"], 1)
+        user_id = misc.get_id(name=name)
+
+        if user_id is None:  # 1. 등록x -> 등록 2. 닉네임 변경 -> 등록
+            register_player.register_player(name)
+            user_id = misc.get_id(name=name)
+
+        prev_date = today - datetime.timedelta(days=1)
+        prev_date_str = prev_date.strftime("%Y-%m-%d")
+
+        prev_rank = data_manager.read_data(
+            "TA_DEV-Ranks", "id-date-index", {"id": user_id, "date": prev_date_str}
+        )[0]["rank"]
+
         if prev_rank is None:
             data["Change"].append(None)
         else:
-            data["Change"].append(prev_rank - i)
+            data["Change"].append(prev_rank - (i + page * 10 - 9))
 
-    avatar_images = [misc.convert_path("assets\\player_heads\\face.png")] * 10
+    avatar_images = [""] * 10
+
+    os_name = platform.system()
+    if os_name == "Linux":
+        head_path = misc.convert_path(f"\\tmp\\player_heads\\player.png")
+    else:
+        head_path = misc.convert_path(f"assets\\player_heads\\player.png")
+
+    if not os.path.exists(os.path.dirname(head_path)):
+        os.makedirs(os.path.dirname(head_path))
 
     # 10개의 스레드 생성
     threads = []
@@ -97,8 +158,6 @@ def get_rank_info(page):
     for thread in threads:
         thread.join()
 
-    df = pd.DataFrame(data)
-
     header_text = ["순위", "닉네임", "레벨", "직업", "변동"]
     header_widths = [160, 500, 280, 240, 240]
 
@@ -112,8 +171,8 @@ def get_rank_info(page):
     aqua = (190, 230, 255)
     light_blue = (240, 245, 255)
 
-    image = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(image)
+    rank_info_image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(rank_info_image)
 
     draw.rectangle(
         [
@@ -124,7 +183,10 @@ def get_rank_info(page):
         width=2,
     )
 
-    font = ImageFont.truetype(misc.convert_path("assets\\fonts\\NanumSquareRoundEB.ttf"), 40)
+    if os_name == "Linux":
+        font = ImageFont.truetype("/opt/NanumSquareRoundEB.ttf", 40)
+    else:
+        font = ImageFont.truetype(misc.convert_path("assets\\fonts\\NanumSquareRoundEB.ttf"), 40)
 
     x_offset = -10
     for i, text in enumerate(header_text):
@@ -142,7 +204,15 @@ def get_rank_info(page):
         draw.text((x + 24, 30), text, fill="black", font=font)
         x_offset += header_widths[i]
 
-    for i, row in df.iterrows():
+    for i in range(len(data["Rank"])):
+        row = {
+            "Rank": str(data["Rank"][i]),
+            "Name": data["Name"][i],
+            "Level": str(data["Level"][i]),
+            "Job": data["Job"][i] if isinstance(data["Job"][i], str) else misc.convert_job(data["Job"][i]),
+            "Change": data["Change"][i],
+        }
+
         y_offset = header_height + i * row_height
         text_y_offset = y_offset + 32
         x_offset = 0
@@ -175,24 +245,20 @@ def get_rank_info(page):
 
         avatar_image = Image.open(avatar_images[i])
         avatar_image = avatar_image.resize((avatar_size, avatar_size))
-        image.paste(avatar_image, (x_offset + 12, y_offset + 12))
+        rank_info_image.paste(avatar_image, (x_offset + 12, y_offset + 12))
         draw.text((x_offset + 124, text_y_offset), row["Name"], fill="black", font=font)
         x_offset += header_widths[1]
 
-        if len(row["Level"]) == 1:
-            draw.text((x_offset + 128, text_y_offset), row["Level"], fill="black", font=font)
-        elif len(row["Level"]) == 2:
-            draw.text((x_offset + 116, text_y_offset), row["Level"], fill="black", font=font)
-        else:
-            draw.text((x_offset + 104, text_y_offset), row["Level"], fill="black", font=font)
+        draw.text(
+            (x_offset + 140 - len(row["Level"]) * 12, text_y_offset), row["Level"], fill="black", font=font
+        )
         x_offset += header_widths[2]
 
         draw.text((x_offset + 84, text_y_offset), row["Job"], fill="black", font=font)
         x_offset += header_widths[3]
 
-        if pd.notna(row["Change"]):
+        if row["Change"] is not None:
             change = int(row["Change"])
-
         else:
             change = None
 
@@ -322,37 +388,28 @@ def get_rank_info(page):
         width=8,
     )
 
-    os.makedirs(
-        os.path.dirname(misc.convert_path("assets\\images\\rank_info.png")),
-        exist_ok=True,
-    )
-    image.save(misc.convert_path("assets\\images\\rank_info.png"))
+    # 이미지 저장
+    os_name = platform.system()
+    if os_name == "Linux":
+        image_path = misc.convert_path("\\tmp\\rank_info.png")
+    else:
+        image_path = misc.convert_path("assets\\images\\rank_info.png")
 
-    for i in range(10):
-        if os.path.exists(misc.convert_path(f"assets\\player_heads\\player{i}.png")):
-            os.remove(misc.convert_path(f"assets\\player_heads\\player{i}.png"))
+    rank_info_image.save(image_path)
 
-    return misc.convert_path("assets\\images\\rank_info.png")
+    text_day = "지금" if today == misc.get_today() else today.strftime("%Y년 %m월 %d일")
+    text_page = "을" if page == 1 else f" {page}페이지를"
 
+    msg = f"{text_day} 한월 RPG의 캐릭터 랭킹{text_page} 보여드릴게요."
 
-def get_prev_player_rank(name, day_before):
-    csv_data = []
-    uuid = misc.get_uuid(name)
-
-    f_path = misc.convert_path("data\\rankdata.csv")
-    with open(f_path, "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            csv_data.append(row)
-
-    if len(csv_data) > day_before:
-        prev_data = csv_data[-day_before - 1]
-        for i in range(1, len(prev_data)):
-            if prev_data[i].split("-")[0] == uuid:
-                return i
-
-    return None
+    return msg, image_path
 
 
 if __name__ == "__main__":
-    hanwol('{ "fn_id": 2, "q": false, "text": null, "var": {"page":1} }')
+    today = datetime.datetime.strptime("2025-02-12", "%Y-%m-%d").date()
+
+    print(get_rank_info(1, today))
+    # print(get_current_rank_data())
+    # print(get_prev_player_rank(50, "2025-01-01"))
+    # print(get_rank_data(datetime.date(2025, 2, 1)))
+    pass

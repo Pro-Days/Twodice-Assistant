@@ -1,6 +1,8 @@
-/data/
-/note/
-/assets/images/
+data/
+note/
+assets/images/
+assets/player_heads/
 .venv/
-scripts/__pycache__/
-scripts/test/
+.env
+*__pycache__
+scripts/temp/

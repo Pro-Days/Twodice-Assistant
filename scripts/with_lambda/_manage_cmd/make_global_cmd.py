@@ -1,6 +1,5 @@
 import os
 import requests
-from pprint import pprint
 
 
 url = f"https://discord.com/api/v10/applications/{os.getenv("DISCORD_APP_ID")}/commands"
@@ -42,21 +41,47 @@ url = f"https://discord.com/api/v10/applications/{os.getenv("DISCORD_APP_ID")}/c
 #     ],
 # }
 
-json = {}
+json = {
+    "name": "등록",
+    "type": 1,
+    "description": "일일 정보를 저장하는 캐릭터 목록에 캐릭터를 추가합니다. 캐릭터 정보 검색을 이용할 수 있게됩니다.",
+    "options": [
+        {
+            "name": "닉네임",
+            "description": "캐릭터 닉네임",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "슬롯",
+            "description": "메인 캐릭터 (본캐) 슬롯 번호 (1~5)",
+            "type": 4,
+            "required": False,
+        },
+    ],
+}
 
 # For authorization, you can use either your bot token
 headers = {"Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}"}
 
 r = requests.post(url, headers=headers, json=json)
-pprint(r.json())
+print(r.json())
 
 
 ## cmd list
 {
     "name": "랭킹",
-    "description": "캐릭터 레벨 랭킹을 보여줍니다.",
-    "options": [{"name": "페이지", "description": "페이지 번호 (1~10)", "type": 4}],
     "type": 1,
+    "description": "캐릭터 레벨 랭킹을 보여줍니다.",
+    "options": [
+        {"name": "페이지", "description": "페이지 번호 (1~10)", "type": 4, "required": False},
+        {
+            "name": "날짜",
+            "description": "캐릭터 정보를 조회할 날짜 (YYYY-MM-DD)",
+            "type": 3,
+            "required": False,
+        },
+    ],
 }
 {
     "name": "검색",
@@ -81,12 +106,18 @@ pprint(r.json())
             "type": 4,
             "required": False,
         },
+        {
+            "name": "날짜",
+            "description": "캐릭터 정보를 조회할 날짜 (YYYY-MM-DD)",
+            "type": 3,
+            "required": False,
+        },
     ],
 }
 {
     "name": "등록",
     "type": 1,
-    "description": "일일 정보를 저장하는 캐릭터 목록에 캐릭터를 추가합니다. 과거 시점의 캐릭터 정보 검색을 이용할 수 있게됩니다.",
+    "description": "일일 정보를 저장하는 캐릭터 목록에 캐릭터를 추가합니다. 캐릭터 정보 검색을 이용할 수 있게됩니다.",
     "options": [
         {
             "name": "닉네임",
