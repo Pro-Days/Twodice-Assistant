@@ -71,10 +71,12 @@ def send_log(log_type, event, msg="", image=None):
     member_name = body["member"]["user"]["global_name"]
     member_username = body["member"]["user"]["username"]
 
+    now = datetime.datetime.now() + datetime.timedelta(hours=9)
+
     if (log_type == 1) or (log_type == 2):
 
         embed_json = {
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": now.strftime("%Y-%m-%d %H:%M:%S"),
             "server": f"{guild_name} ({guild_id})",
             "channel": f"{channel_name} ({channel_id})",
             "author": f"{member_name} - {member_username} ({member_id})",
@@ -107,7 +109,7 @@ def send_log(log_type, event, msg="", image=None):
 
     elif log_type == 3:
         embed_json = {
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": now.strftime("%Y-%m-%d %H:%M:%S"),
             "server": f"{guild_name} ({guild_id})",
             "channel": f"{channel_name} ({channel_id})",
             "author": f"{member_name} - {member_username} ({member_id})",

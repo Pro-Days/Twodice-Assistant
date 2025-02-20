@@ -14,9 +14,11 @@ def send_log(log_type, event, msg):
     log_type: 5 - 데이터 업데이트 에러 로그
     """
 
+    now = datetime.datetime.now() + datetime.timedelta(hours=9)
+
     if log_type == 4:
         embed_json = {
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": now.strftime("%Y-%m-%d %H:%M:%S"),
             "cmd": event["action"],
         }
 
@@ -36,7 +38,7 @@ def send_log(log_type, event, msg):
 
     elif log_type == 5:
         embed_json = {
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": now.strftime("%Y-%m-%d %H:%M:%S"),
             "cmd": event["action"],
             "error": msg,
         }
